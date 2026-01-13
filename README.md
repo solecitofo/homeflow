@@ -6,10 +6,12 @@
 
 Una aplicación web basada en principios de Terapia Cognitivo-Conductual (TCC) y activación conductual, diseñada para ayudar a las personas a organizarse sin sentirse abrumadas.
 
-[Demo](#) • [Documentación](#documentación) • [Contribuir](CONTRIBUTING.md)
+[Demo](https://solecitofo.github.io/homeflow/) • [Documentación](#documentación) • [Contribuir](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/solecitofo/homeflow/actions/workflows/ci.yml/badge.svg)
+![Deploy](https://github.com/solecitofo/homeflow/actions/workflows/deploy.yml/badge.svg)
+![Version](https://img.shields.io/github/package-json/v/solecitofo/homeflow)
+![License](https://img.shields.io/github/license/solecitofo/homeflow)
 ![React](https://img.shields.io/badge/React-18.3.1-61dafb?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178c6?logo=typescript)
 ![PWA](https://img.shields.io/badge/PWA-ready-5a0fc8)
