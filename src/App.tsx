@@ -41,7 +41,7 @@ const LearnPage = () => (
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/">
       <Routes>
         {/* Onboarding Flow */}
         <Route path="/onboarding" element={<EmotionalStateSelection />} />
