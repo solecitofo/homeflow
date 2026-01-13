@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow - Wireframes Gestión del Hogar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+
+        .wireframes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .wireframe {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .wireframe:hover {
+            transform: translateY(-5px);
+        }
+
+        .wireframe-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .wireframe-content {
+            padding: 25px;
+        }
+
+        .screen-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .screen-subtitle {
+            font-size: 1em;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        /* State Cards */
+        .state-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .state-card:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+            transform: translateX(5px);
+        }
+
+        .state-icon {
+            font-size: 2.5em;
+            min-width: 50px;
+        }
+
+        .state-text h3 {
+            font-size: 1.1em;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .state-text p {
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+        /* Task Card */
+        .task-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .task-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .task-description {
+            opacity: 0.9;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* Buttons */
+        .button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .button-secondary:hover {
+            background: #f7fafc;
+        }
+
+        .button-text {
+            background: transparent;
+            color: #718096;
+            text-decoration: underline;
+        }
+
+        /* Timer */
+        .timer {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer-display {
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .timer-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        /* Mood Comparison */
+        .mood-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+
+        .mood-box {
+            text-align: center;
+        }
+
+        .mood-emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .mood-label {
+            font-size: 0.85em;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .mood-arrow {
+            font-size: 2em;
+            color: #48bb78;
+        }
+
+        /* Feedback Form */
+        .feedback-question {
+            margin-bottom: 20px;
+        }
+
+        .feedback-question label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .emoji-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .emoji-option {
+            font-size: 2.5em;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .emoji-option:hover,
+        .emoji-option.selected {
+            opacity: 1;
+            background: #f7fafc;
+            transform: scale(1.1);
+        }
+
+        /* Streak Indicator */
+        .streak {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .streak-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .streak-label {
+            opacity: 0.9;
+        }
+
+        /* Intensity Selector */
+        .intensity-selector {
+            margin-bottom: 20px;
+        }
+
+        .intensity-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .intensity-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .intensity-option.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .intensity-level {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .level-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .level-basic { background: #c6f6d5; color: #22543d; }
+        .level-standard { background: #fef3c7; color: #78350f; }
+        .level-deep { background: #fed7d7; color: #742a2a; }
+
+        .intensity-description {
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+        .intensity-time {
+            font-size: 0.85em;
+            color: #a0aec0;
+        }
+
+        /* Message Box */
+        .message-box {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .message-box p {
+            color: #4c51bf;
+            line-height: 1.6;
+        }
+
+        /* Home Overview */
+        .rooms-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .room-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .room-card:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .room-info h4 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .room-status {
+            font-size: 0.85em;
+            color: #718096;
+        }
+
+        .room-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .status-good { background: #c6f6d5; color: #22543d; }
+        .status-warning { background: #fef3c7; color: #78350f; }
+        .status-alert { background: #fed7d7; color: #742a2a; }
+
+        /* Points Display */
+        .points-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .points-current {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .points-goal {
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 60%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Shopping List */
+        .shopping-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shopping-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .shopping-input button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .suggestions-box {
+            background: #fef3c7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .suggestions-box h4 {
+            color: #78350f;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .suggestion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-tag {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-tag:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .shopping-items {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .shopping-item.checked {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        /* Success Animation */
+        .success-animation {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .success-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .notes h3 {
+            color: #742a2a;
+            margin-bottom: 10px;
+        }
+
+        .notes ul {
+            color: #742a2a;
+            margin-left: 20px;
+        }
+
+        .notes li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .wireframes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Flow - Wireframes: Gestión del Hogar</h1>
+
+        <div class="wireframes-grid">
+            
+            <!-- PANTALLA 1: Entrada -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 1: Punto de Entrada
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Mi Hogar</h2>
+                    <p class="screen-subtitle">Gestión del espacio y tareas domésticas</p>
+
+                    <div class="state-card">
+                        <div class="state-icon">🤯</div>
+                        <div class="state-text">
+                            <h3>Estoy abrumado/a</h3>
+                            <p>No sé ni por dónde empezar</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">⚡</div>
+                        <div class="state-text">
+                            <h3>Tengo algo de energía</h3>
+                            <p>¿Qué puedo hacer?</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">😓</div>
+                        <div class="state-text">
+                            <h3>Me cuesta ponerme en marcha</h3>
+                            <p>Necesito un empujón</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">📝</div>
+                        <div class="state-text">
+                            <h3>Quiero planificar</h3>
+                            <p>Ver opciones y decidir</p>
+                        </div>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Primera interacción: identificar estado emocional</li>
+                            <li>Sin mostrar TODO de golpe (reduce abrumación)</li>
+                            <li>Cards grandes, fáciles de tocar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 2: Ruta Abrumado - Micro-tarea -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 2: Sugerencia (Ruta Abrumado)
+                </div>
+                <div class="wireframe-content">
+                    <div class="message-box">
+                        <p>Entiendo, a veces el desorden nos puede. Vamos a empezar <strong>MUY pequeño</strong></p>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-badge">🎯 Tu micro-misión</div>
+                        <div class="task-title">Recoge 3 objetos</div>
+                        <div class="task-description">
+                            Encuentra 3 objetos que estén fuera de su sitio y colócalos donde van
+                        </div>
+                        <div class="task-meta">
+                            <span>⏱️ 2 minutos</span>
+                            <span>✨ Impacto bajo</span>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Empezar</button>
+                    <button class="button button-text">Necesito algo más pequeño</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>NO dar opciones (evita parálisis)</li>
+                            <li>Validación emocional primero</li>
+                            <li>Tarea ultra-específica y breve</li>
+                            <li>Opción de "más pequeño" disponible</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 3: Durante la Tarea -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 3: Ejecución de Tarea
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Recoge 3 objetos</h2>
+
+                    <div class="timer">
+                        <div class="timer-display">1:34</div>
+                        <div class="timer-label">tiempo transcurrido</div>
+                    </div>
+
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <div class="checkbox checked">✓</div>
+                            <div>Objeto 1 guardado</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div class="checkbox checked">✓</div>
+                            <div>Objeto 2 guardado</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div class="checkbox">⃝</div>
+                            <div>Objeto 3 guardado</div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">¡Hecho!</button>
+                    <button class="button button-secondary">Pausar</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Timer no es restrictivo (solo informativo)</li>
+                            <li>Checklist da sensación de progreso</li>
+                            <li>Botón "¡Hecho!" siempre visible</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 4: Feedback Post-Tarea -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 4: Feedback y Registro
+                </div>
+                <div class="wireframe-content">
+                    <div class="success-animation">
+                        <div class="success-icon">✨</div>
+                        <h2 class="screen-title">¡Lo hiciste!</h2>
+                        <p class="screen-subtitle">Completaste: Recoge 3 objetos</p>
+                        <p class="screen-subtitle">en 2 minutos</p>
+                    </div>
+
+                    <div class="mood-comparison">
+                        <div class="mood-box">
+                            <div class="mood-label">ANTES</div>
+                            <div class="mood-emoji">😰</div>
+                        </div>
+                        <div class="mood-arrow">→</div>
+                        <div class="mood-box">
+                            <div class="mood-label">AHORA</div>
+                            <div class="mood-emoji">?</div>
+                        </div>
+                    </div>
+
+                    <div class="feedback-question">
+                        <label>¿Cómo te sientes AHORA?</label>
+                        <div class="emoji-selector">
+                            <div class="emoji-option">😓</div>
+                            <div class="emoji-option">😐</div>
+                            <div class="emoji-option selected">😌</div>
+                            <div class="emoji-option">😊</div>
+                            <div class="emoji-option">😁</div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Continuar</button>
+
+                    <div class="streak">
+                        <div class="streak-number">🔥 3</div>
+                        <div class="streak-label">días seguidos haciendo algo</div>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Celebración inmediata</li>
+                            <li>Registro emocional simple (emojis)</li>
+                            <li>Refuerzo con racha</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 5: Ruta Energía - Con Opciones -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 5: Sugerencia (Ruta Energía)
+                </div>
+                <div class="wireframe-content">
+                    <div class="message-box">
+                        <p>¡Genial! Aprovechemos esa energía de forma estratégica</p>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-badge">💡 Sugerencia personalizada</div>
+                        <div class="task-title">Limpieza express de cocina</div>
+                        <div class="task-description">
+                            Recoger encimera, fregar platos visibles y pasar bayeta
+                        </div>
+                        <div class="task-meta">
+                            <span>⏱️ 15 minutos</span>
+                            <span>⭐⭐⭐⭐⭐ Impacto alto</span>
+                        </div>
+                    </div>
+
+                    <div class="message-box">
+                        <p><strong>¿Por qué esta?</strong> Basado en registros previos, esto suele hacerte sentir muy bien</p>
+                    </div>
+
+                    <button class="button button-primary">Hacerlo</button>
+                    <button class="button button-secondary">Dame otra opción</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Explicar el "por qué" de la sugerencia</li>
+                            <li>Mostrar impacto emocional esperado</li>
+                            <li>Dar opción de alternativa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 6: Ruta Estancado - Identificar Barrera -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 6: Identificar Barrera
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">¿Qué te está frenando?</h2>
+                    <p class="screen-subtitle">Vamos a encontrar la mejor forma de ayudarte</p>
+
+                    <div class="state-card">
+                        <div class="state-icon">😴</div>
+                        <div class="state-text">
+                            <h3>No tengo energía</h3>
+                            <p>Me cuesta moverme</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">🤔</div>
+                        <div class="state-text">
+                            <h3>No sé qué hacer primero</h3>
+                            <p>Hay demasiadas cosas</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">⏰</div>
+                        <div class="state-text">
+                            <h3>No es el momento "perfecto"</h3>
+                            <p>Siento que debería esperar</p>
+                        </div>
+                    </div>
+
+                    <div class="state-card">
+                        <div class="state-icon">😰</div>
+                        <div class="state-text">
+                            <h3>Me da ansiedad empezar</h3>
+                            <p>Me abruma pensar en hacerlo</p>
+                        </div>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Identificar barrera específica</li>
+                            <li>Cada respuesta → estrategia diferente</li>
+                            <li>Validar la experiencia del usuario</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 7: Resolución - Sin Energía -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 7: Resolución (Sin Energía)
+                </div>
+                <div class="wireframe-content">
+                    <div class="message-box">
+                        <p>Entiendo. ¿Qué tal si hacemos algo que <strong>NO requiera moverte mucho</strong>?</p>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-badge">📝 Desde el sofá</div>
+                        <div class="task-title">Hacer lista de compra</div>
+                        <div class="task-description">
+                            Revisa mentalmente qué necesitas y añádelo a la lista
+                        </div>
+                        <div class="task-meta">
+                            <span>⏱️ 10 minutos</span>
+                            <span>🛋️ Sin movimiento</span>
+                        </div>
+                    </div>
+
+                    <div class="message-box">
+                        <p><em>Avanzar ≠ esfuerzo físico. Estás progresando igualmente.</em></p>
+                    </div>
+
+                    <button class="button button-primary">Vale, voy</button>
+                    <button class="button button-secondary">Dame otra</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Adaptar tarea a la barrera específica</li>
+                            <li>Reestructuración cognitiva suave</li>
+                            <li>Validar que el progreso no requiere esfuerzo físico</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 8: Selección de Intensidad -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 8: Niveles de Intensidad
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Limpiar baño</h2>
+                    
+                    <div class="message-box">
+                        <p>Recuerda: <strong>Hecho es mejor que perfecto</strong>. Elige el nivel que te parezca manejable hoy.</p>
+                    </div>
+
+                    <div class="intensity-selector">
+                        <div class="intensity-option selected">
+                            <div class="intensity-level">
+                                <span class="level-badge level-basic">🟢 BÁSICO</span>
+                                <span class="intensity-time">5 minutos</span>
+                            </div>
+                            <div class="intensity-description">Solo WC y lavabo</div>
+                        </div>
+
+                        <div class="intensity-option">
+                            <div class="intensity-level">
+                                <span class="level-badge level-standard">🟡 ESTÁNDAR</span>
+                                <span class="intensity-time">15 minutos</span>
+                            </div>
+                            <div class="intensity-description">WC, lavabo y ducha</div>
+                        </div>
+
+                        <div class="intensity-option">
+                            <div class="intensity-level">
+                                <span class="level-badge level-deep">🔴 PROFUNDO</span>
+                                <span class="intensity-time">30 minutos</span>
+                            </div>
+                            <div class="intensity-description">Todo + azulejos y suelo</div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Empezar con nivel básico</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Challenge al perfeccionismo</li>
+                            <li>Nivel básico preseleccionado y enfatizado</li>
+                            <li>Opciones claras y diferenciadas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 9: Vista General del Hogar -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 9: Vista General (Planificación)
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Estado de tu hogar</h2>
+
+                    <div class="points-display">
+                        <div class="points-current">6 / 10</div>
+                        <div class="points-goal">puntos esta semana</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+
+                    <div class="rooms-grid">
+                        <div class="room-card">
+                            <div class="room-info">
+                                <h4>🍳 Cocina</h4>
+                                <div class="room-status">Mantenida hoy</div>
+                            </div>
+                            <div class="room-indicator status-good">✓</div>
+                        </div>
+
+                        <div class="room-card">
+                            <div class="room-info">
+                                <h4>🛋️ Salón</h4>
+                                <div class="room-status">Última vez: hace 2 días</div>
+                            </div>
+                            <div class="room-indicator status-warning">!</div>
+                        </div>
+
+                        <div class="room-card">
+                            <div class="room-info">
+                                <h4>🛏️ Dormitorio</h4>
+                                <div class="room-status">Necesita atención</div>
+                            </div>
+                            <div class="room-indicator status-alert">!</div>
+                        </div>
+
+                        <div class="room-card">
+                            <div class="room-info">
+                                <h4>🚿 Baño</h4>
+                                <div class="room-status">Sin datos recientes</div>
+                            </div>
+                            <div class="room-indicator">?</div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Ver tareas disponibles</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Vista fragmentada (por habitación)</li>
+                            <li>Sistema de puntos flexible</li>
+                            <li>Indicadores visuales de estado</li>
+                            <li>No genera culpa, solo informa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 10: Lista de Compras Inteligente -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 10: Lista de Compras
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">🛒 Lista de compra</h2>
+
+                    <div class="shopping-input">
+                        <input type="text" placeholder="Añadir artículo...">
+                        <button>+</button>
+                    </div>
+
+                    <div class="suggestions-box">
+                        <h4>💡 ¿Necesitas...?</h4>
+                        <div class="suggestion-tags">
+                            <div class="suggestion-tag">🥛 Leche</div>
+                            <div class="suggestion-tag">🍞 Pan</div>
+                            <div class="suggestion-tag">🥚 Huevos</div>
+                            <div class="suggestion-tag">💧 Agua</div>
+                        </div>
+                        <p style="font-size: 0.8em; color: #78350f; margin-top: 8px;">Hace 8 días que no añades leche</p>
+                    </div>
+
+                    <div class="shopping-items">
+                        <div class="shopping-item">
+                            <div class="checkbox">⃝</div>
+                            <div>Tomates</div>
+                        </div>
+                        <div class="shopping-item">
+                            <div class="checkbox">⃝</div>
+                            <div>Pasta</div>
+                        </div>
+                        <div class="shopping-item checked">
+                            <div class="checkbox checked">✓</div>
+                            <div>Aceite</div>
+                        </div>
+                        <div class="shopping-item">
+                            <div class="checkbox">⃝</div>
+                            <div>Detergente</div>
+                        </div>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Sugerencias basadas en historial</li>
+                            <li>Input de voz opcional (reducir fricción)</li>
+                            <li>Recordatorio de básicos</li>
+                            <li>Fácil marcar/desmarcar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 11: Misiones Rápidas por Habitación -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 11: Detalle de Habitación
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">🛏️ Dormitorio</h2>
+                    <p class="screen-subtitle">Última atención: hace 5 días</p>
+
+                    <h3 style="margin: 20px 0 15px 0; color: #2d3748;">Misiones rápidas disponibles</h3>
+
+                    <div class="task-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); margin-bottom: 10px; padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 3px;">Hacer la cama</div>
+                                <div style="opacity: 0.9; font-size: 0.85em;">⏱️ 2 minutos</div>
+                            </div>
+                            <div style="font-size: 1.5em;">→</div>
+                        </div>
+                    </div>
+
+                    <div class="task-card" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); margin-bottom: 10px; padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 3px;">Recoger ropa del suelo</div>
+                                <div style="opacity: 0.9; font-size: 0.85em;">⏱️ 5 minutos</div>
+                            </div>
+                            <div style="font-size: 1.5em;">→</div>
+                        </div>
+                    </div>
+
+                    <div class="task-card" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); margin-bottom: 10px; padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 3px;">Ordenar mesita de noche</div>
+                                <div style="opacity: 0.9; font-size: 0.85em;">⏱️ 3 minutos</div>
+                            </div>
+                            <div style="font-size: 1.5em;">→</div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Hacer una</button>
+                    <button class="button button-secondary">Hacer todas (10 min)</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Tareas específicas de cada habitación</li>
+                            <li>Opción de hacer una o secuencia</li>
+                            <li>Visualización clara del tiempo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 12: Insights y Patrones -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 12: Resumen Semanal e Insights
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">📊 Tu semana</h2>
+                    <p class="screen-subtitle">Del 5 al 11 de enero</p>
+
+                    <div class="points-display">
+                        <div class="points-current">12</div>
+                        <div class="points-goal">tareas completadas</div>
+                    </div>
+
+                    <div style="background: #f7fafc; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                        <h4 style="color: #2d3748; margin-bottom: 10px;">📅 Días activos</h4>
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <div style="flex: 1; height: 40px; background: #48bb78; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #48bb78; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #e2e8f0; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #48bb78; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #48bb78; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #48bb78; border-radius: 8px;"></div>
+                            <div style="flex: 1; height: 40px; background: #e2e8f0; border-radius: 8px;"></div>
+                        </div>
+                        <div style="display: flex; gap: 5px; font-size: 0.75em; color: #718096;">
+                            <div style="flex: 1; text-align: center;">L</div>
+                            <div style="flex: 1; text-align: center;">M</div>
+                            <div style="flex: 1; text-align: center;">X</div>
+                            <div style="flex: 1; text-align: center;">J</div>
+                            <div style="flex: 1; text-align: center;">V</div>
+                            <div style="flex: 1; text-align: center;">S</div>
+                            <div style="flex: 1; text-align: center;">D</div>
+                        </div>
+                        <p style="color: #718096; margin-top: 10px; font-size: 0.9em;">5 de 7 días</p>
+                    </div>
+
+                    <div style="background: #eef2ff; border-left: 4px solid #667eea; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4 style="color: #4c51bf; margin-bottom: 8px;">💡 Insight</h4>
+                        <p style="color: #4c51bf; font-size: 0.9em; line-height: 1.6;">
+                            Cuando haces micro-tareas de cocina, tu estado de ánimo mejora en un <strong>85%</strong> de las veces
+                        </p>
+                    </div>
+
+                    <div style="background: #eef2ff; border-left: 4px solid #667eea; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #4c51bf; margin-bottom: 8px;">⏰ Patrón detectado</h4>
+                        <p style="color: #4c51bf; font-size: 0.9em; line-height: 1.6;">
+                            Las mañanas son tu mejor momento para activarte (3x más completaciones)
+                        </p>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Visualización de progreso sin juicio</li>
+                            <li>Insights basados en datos reales</li>
+                            <li>Refuerzo de conexión actividad-ánimo</li>
+                            <li>Identificación de patrones útiles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="background: white; border-radius: 20px; padding: 30px; margin-top: 40px;">
+            <h2 style="color: #2d3748; margin-bottom: 20px;">🎯 Resumen de Decisiones de Diseño</h2>
+            
+            <h3 style="color: #667eea; margin: 20px 0 10px 0;">Principios Aplicados (TCC)</h3>
+            <ul style="color: #4a5568; line-height: 2;">
+                <li><strong>Activación gradual:</strong> Micro-tareas accesibles para cualquier estado</li>
+                <li><strong>Reducción de evitación:</strong> Puntos de entrada múltiples según barrera</li>
+                <li><strong>Automonitoreo:</strong> Registro emocional pre/post tarea</li>
+                <li><strong>Refuerzo inmediato:</strong> Celebración y feedback positivo</li>
+                <li><strong>Reestructuración cognitiva:</strong> Challenge a perfeccionismo y "momento perfecto"</li>
+                <li><strong>Resolución de problemas:</strong> Adaptación a barreras contextuales</li>
+            </ul>
+
+            <h3 style="color: #667eea; margin: 20px 0 10px 0;">Estrategias para TDAH</h3>
+            <ul style="color: #4a5568; line-height: 2;">
+                <li><strong>Reducción de carga cognitiva:</strong> Sistema decide por el usuario cuando está abrumado</li>
+                <li><strong>Memoria externa:</strong> Sugerencias automáticas, recordatorios visuales</li>
+                <li><strong>Inicio sin fricción:</strong> Tareas ultra-específicas, sin ambigüedad</li>
+                <li><strong>Refuerzo inmediato:</strong> Gamificación sutil (racha, puntos)</li>
+                <li><strong>Variabilidad estructurada:</strong> Sistema de puntos vs rutinas rígidas</li>
+                <li><strong>Prevención de olvido:</strong> Lista de compras con sugerencias inteligentes</li>
+            </ul>
+
+            <h3 style="color: #667eea; margin: 20px 0 10px 0;">Elementos Clave de UI/UX</h3>
+            <ul style="color: #4a5568; line-height: 2;">
+                <li><strong>Progresivo, no abrumador:</strong> Una decisión a la vez</li>
+                <li><strong>Validación emocional:</strong> Reconocer estado antes de pedir acción</li>
+                <li><strong>Opciones de escape:</strong> Siempre hay alternativa más pequeña</li>
+                <li><strong>Celebración visible:</strong> Éxitos destacados, no solo números</li>
+                <li><strong>Sin culpa:</strong> Lenguaje compasivo, datos informativos no juzgadores</li>
+                <li><strong>Flexibilidad:</strong> Múltiples niveles de intensidad para misma tarea</li>
+            </ul>
+        </div>
+
+        <div style="background: #667eea; color: white; border-radius: 20px; padding: 30px; margin-top: 30px; text-align: center;">
+            <h2 style="margin-bottom: 15px;">✨ Flow: A tu lado, a tu ritmo</h2>
+            <p style="opacity: 0.9; font-size: 1.1em;">Diseñado con amor para mentes inquietas</p>
+        </div>
+    </div>
+</body>
+</html>

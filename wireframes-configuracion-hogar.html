@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow - Configuración del Hogar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+
+        .wireframes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .wireframe {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .wireframe-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .wireframe-content {
+            padding: 25px;
+        }
+
+        .screen-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .screen-subtitle {
+            font-size: 1em;
+            color: #718096;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Progress Indicator */
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #667eea;
+            width: 30px;
+            border-radius: 10px;
+        }
+
+        /* Input Field */
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
+
+        /* Number Selector */
+        .number-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .number-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #667eea;
+            color: white;
+            font-size: 1.5em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .number-btn:hover {
+            transform: scale(1.1);
+            background: #5568d3;
+        }
+
+        .number-btn:disabled {
+            background: #e2e8f0;
+            color: #a0aec0;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .number-display {
+            font-size: 3em;
+            font-weight: 700;
+            color: #2d3748;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-group:hover {
+            background: #edf2f7;
+        }
+
+        .toggle-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggle-icon {
+            font-size: 2em;
+            min-width: 40px;
+        }
+
+        .toggle-text h4 {
+            color: #2d3748;
+            margin-bottom: 3px;
+        }
+
+        .toggle-text p {
+            font-size: 0.85em;
+            color: #718096;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: #cbd5e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            left: 31px;
+        }
+
+        /* Multi-select Tags */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-option {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .tag-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tag-icon {
+            font-size: 1.2em;
+        }
+
+        /* Buttons */
+        .button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-secondary {
+            background: transparent;
+            color: #718096;
+            border: 2px solid #e2e8f0;
+        }
+
+        .button-secondary:hover {
+            background: #f7fafc;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .nav-buttons .button {
+            margin: 0;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box p {
+            color: #4c51bf;
+            line-height: 1.6;
+            font-size: 0.9em;
+        }
+
+        /* Preview Card */
+        .preview-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .preview-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .preview-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .preview-item-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-item-value {
+            font-weight: 600;
+        }
+
+        /* Notes */
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .notes h3 {
+            color: #742a2a;
+            margin-bottom: 10px;
+        }
+
+        .notes ul {
+            color: #742a2a;
+            margin-left: 20px;
+        }
+
+        .notes li {
+            margin-bottom: 5px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Edit Button */
+        .edit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Room List */
+        .room-list {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .room-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .room-item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .room-item-icon {
+            font-size: 2em;
+        }
+
+        .room-item-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .room-item-meta {
+            font-size: 0.85em;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .wireframes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Configuración del Hogar</h1>
+
+        <div class="wireframes-grid">
+            
+            <!-- PANTALLA 1: Bienvenida -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 1: Bienvenida e Introducción
+                </div>
+                <div class="wireframe-content">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-size: 5em; margin-bottom: 20px;">🏠</div>
+                        <h2 class="screen-title">Configura tu hogar</h2>
+                        <p class="screen-subtitle">
+                            Vamos a personalizar Flow para que se adapte a tu espacio. 
+                            Solo tardará 2 minutos y podrás cambiarlo cuando quieras.
+                        </p>
+                    </div>
+
+                    <div class="info-box">
+                        <p>
+                            <strong>¿Por qué hacemos esto?</strong><br>
+                            Para sugerirte tareas relevantes para <em>tu</em> hogar, no genéricas. 
+                            Así no tendrás que "traducir" mentalmente nuestras sugerencias.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; gap: 15px; margin-bottom: 25px;">
+                        <div style="display: flex; gap: 15px; padding: 15px; background: #f7fafc; border-radius: 12px;">
+                            <div style="font-size: 2em;">✓</div>
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 3px;">
+                                    Tareas específicas
+                                </div>
+                                <div style="font-size: 0.9em; color: #718096;">
+                                    "Limpiar tu terraza" en lugar de "limpiar jardín"
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; padding: 15px; background: #f7fafc; border-radius: 12px;">
+                            <div style="font-size: 2em;">✓</div>
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 3px;">
+                                    Solo lo relevante
+                                </div>
+                                <div style="font-size: 0.9em; color: #718096;">
+                                    No verás tareas de espacios que no tienes
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; padding: 15px; background: #f7fafc; border-radius: 12px;">
+                            <div style="font-size: 2em;">✓</div>
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 3px;">
+                                    Más personal
+                                </div>
+                                <div style="font-size: 0.9em; color: #718096;">
+                                    Tu espacio, tus necesidades
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Empezar configuración</button>
+                    <button class="button button-secondary">Usar configuración por defecto</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Explicar el "por qué" reduce resistencia</li>
+                            <li>Mostrar beneficios concretos y tangibles</li>
+                            <li>Dar opción de saltar (reduce presión)</li>
+                            <li>Énfasis en que es rápido y editable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 2: Nombre y Espacios Básicos -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 2: Configuración Básica (Paso 1/3)
+                </div>
+                <div class="wireframe-content">
+                    <div class="progress-dots">
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+
+                    <h2 class="screen-title">Tu hogar</h2>
+                    <p class="screen-subtitle">Información básica de tu espacio</p>
+
+                    <div class="input-group">
+                        <label>¿Cómo quieres llamar a tu hogar?</label>
+                        <input type="text" placeholder="Mi hogar" value="">
+                        <div class="input-hint">Opcional - puedes dejarlo como "Mi hogar"</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>¿Cuántos dormitorios/habitaciones tienes?</label>
+                        <div class="number-selector">
+                            <button class="number-btn">−</button>
+                            <div class="number-display">2</div>
+                            <button class="number-btn">+</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>¿Cuántos baños?</label>
+                        <div class="number-selector">
+                            <button class="number-btn">−</button>
+                            <div class="number-display">1</div>
+                            <button class="number-btn">+</button>
+                        </div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="button button-secondary">Atrás</button>
+                        <button class="button button-primary">Siguiente</button>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Input de nombre opcional (no obligatorio)</li>
+                            <li>Selectores numéricos grandes (fáciles de tocar)</li>
+                            <li>Progreso visible (3 pasos, estás en el 1)</li>
+                            <li>Mínimo de 0 dormitorios para estudios/monoambientes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 3: Espacios Comunes -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 3: Espacios Comunes (Paso 2/3)
+                </div>
+                <div class="wireframe-content">
+                    <div class="progress-dots">
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+
+                    <h2 class="screen-title">Espacios comunes</h2>
+                    <p class="screen-subtitle">¿Qué otros espacios tienes en tu hogar?</p>
+
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-icon">🍳</div>
+                            <div class="toggle-text">
+                                <h4>Cocina</h4>
+                                <p>Espacio para cocinar</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-icon">🛋️</div>
+                            <div class="toggle-text">
+                                <h4>Salón / Sala de estar</h4>
+                                <p>Espacio de estar común</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-icon">🍽️</div>
+                            <div class="toggle-text">
+                                <h4>Comedor</h4>
+                                <p>Espacio separado para comer</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <p>
+                            💡 <strong>Tip:</strong> Si tu salón y comedor son el mismo espacio, 
+                            activa solo "Salón"
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="button button-secondary">Atrás</button>
+                        <button class="button button-primary">Siguiente</button>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Toggles grandes con descripción clara</li>
+                            <li>Espacios pre-activados para mayoría de hogares</li>
+                            <li>Tip contextual para evitar confusión</li>
+                            <li>Visual claro de qué está activado/desactivado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 4: Espacios Adicionales -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 4: Espacios Adicionales (Paso 3/3)
+                </div>
+                <div class="wireframe-content">
+                    <div class="progress-dots">
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot active"></div>
+                    </div>
+
+                    <h2 class="screen-title">Espacios adicionales</h2>
+                    <p class="screen-subtitle">Selecciona los que apliquen (puedes elegir varios)</p>
+
+                    <div class="tags-container">
+                        <div class="tag-option selected">
+                            <span class="tag-icon">🌿</span>
+                            <span>Terraza</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🏢</span>
+                            <span>Balcón</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">💼</span>
+                            <span>Despacho / Oficina</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🚗</span>
+                            <span>Garaje</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">📦</span>
+                            <span>Trastero</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🏡</span>
+                            <span>Jardín</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🧺</span>
+                            <span>Lavadero</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🎮</span>
+                            <span>Sala de juegos</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">📚</span>
+                            <span>Biblioteca</span>
+                        </div>
+
+                        <div class="tag-option">
+                            <span class="tag-icon">🏋️</span>
+                            <span>Gimnasio</span>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 25px;">
+                        <p>
+                            Si no tienes ninguno de estos espacios, no pasa nada. 
+                            Simplemente no selecciones ninguno.
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="button button-secondary">Atrás</button>
+                        <button class="button button-primary">Ver resumen</button>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Multi-selección con tags visuales</li>
+                            <li>Estado claro (seleccionado/no seleccionado)</li>
+                            <li>Lista amplia pero no abrumadora</li>
+                            <li>Validación de que está OK no tener ninguno</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 5: Resumen y Confirmación -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 5: Resumen y Confirmación
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Confirmación</h2>
+                    <p class="screen-subtitle">Así quedó configurado tu hogar</p>
+
+                    <div class="preview-card">
+                        <div class="preview-title">🏠 Mi hogar</div>
+                        
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="preview-item-label">
+                                    <span>🛏️</span>
+                                    <span>Dormitorios</span>
+                                </div>
+                                <div class="preview-item-value">2</div>
+                            </div>
+
+                            <div class="preview-item">
+                                <div class="preview-item-label">
+                                    <span>🚿</span>
+                                    <span>Baños</span>
+                                </div>
+                                <div class="preview-item-value">1</div>
+                            </div>
+
+                            <div class="preview-item">
+                                <div class="preview-item-label">
+                                    <span>🍳</span>
+                                    <span>Cocina</span>
+                                </div>
+                                <div class="preview-item-value">✓</div>
+                            </div>
+
+                            <div class="preview-item">
+                                <div class="preview-item-label">
+                                    <span>🛋️</span>
+                                    <span>Salón</span>
+                                </div>
+                                <div class="preview-item-value">✓</div>
+                            </div>
+
+                            <div class="preview-item">
+                                <div class="preview-item-label">
+                                    <span>🌿</span>
+                                    <span>Terraza</span>
+                                </div>
+                                <div class="preview-item-value">✓</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <p>
+                            <strong>Puedes cambiar esta configuración cuando quieras</strong><br>
+                            Encontrarás la opción en Ajustes → Configuración del hogar
+                        </p>
+                    </div>
+
+                    <button class="button button-primary">Confirmar y empezar</button>
+                    <button class="button button-secondary">Editar configuración</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Resumen visual claro de toda la config</li>
+                            <li>Último checkpoint antes de guardar</li>
+                            <li>Recordatorio de que es editable</li>
+                            <li>Opciones claras: confirmar o volver a editar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 6: Configuración Completa -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 6: Confirmación de Éxito
+                </div>
+                <div class="wireframe-content">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="font-size: 6em; margin-bottom: 20px; animation: bounce 0.5s ease;">
+                            ✨
+                        </div>
+                        <h2 class="screen-title">¡Todo listo!</h2>
+                        <p class="screen-subtitle">
+                            Flow está configurado para tu hogar.<br>
+                            Ahora las sugerencias serán específicas para tus espacios.
+                        </p>
+                    </div>
+
+                    <div style="background: #f7fafc; padding: 20px; border-radius: 15px; margin-bottom: 25px;">
+                        <h3 style="color: #2d3748; margin-bottom: 15px; text-align: center;">
+                            Ahora puedes gestionar:
+                        </h3>
+                        
+                        <div style="display: grid; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">🛏️</span>
+                                <span style="color: #2d3748;">2 Dormitorios</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">🚿</span>
+                                <span style="color: #2d3748;">1 Baño</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">🍳</span>
+                                <span style="color: #2d3748;">Cocina</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">🛋️</span>
+                                <span style="color: #2d3748;">Salón</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px;">
+                                <span style="font-size: 1.5em;">🌿</span>
+                                <span style="color: #2d3748;">Terraza</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary">Ir a Mi Hogar</button>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Celebración del éxito (animación)</li>
+                            <li>Resumen final de lo configurado</li>
+                            <li>CTA claro para empezar a usar el módulo</li>
+                            <li>Sensación de logro y progreso</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 7: Edición Posterior -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 7: Vista de Edición (desde Ajustes)
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">Configuración del hogar</h2>
+                    <p class="screen-subtitle">Edita la información de tu espacio</p>
+
+                    <div class="input-group">
+                        <label>Nombre</label>
+                        <input type="text" value="Mi hogar">
+                    </div>
+
+                    <div class="room-list">
+                        <h3 style="color: #2d3748; margin-bottom: 15px;">Espacios configurados</h3>
+                        
+                        <div class="room-item">
+                            <div class="room-item-info">
+                                <div class="room-item-icon">🛏️</div>
+                                <div>
+                                    <div class="room-item-name">Dormitorios</div>
+                                    <div class="room-item-meta">2 espacios</div>
+                                </div>
+                            </div>
+                            <button style="background: #f7fafc; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">
+                                Editar
+                            </button>
+                        </div>
+
+                        <div class="room-item">
+                            <div class="room-item-info">
+                                <div class="room-item-icon">🚿</div>
+                                <div>
+                                    <div class="room-item-name">Baños</div>
+                                    <div class="room-item-meta">1 espacio</div>
+                                </div>
+                            </div>
+                            <button style="background: #f7fafc; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">
+                                Editar
+                            </button>
+                        </div>
+
+                        <div class="room-item">
+                            <div class="room-item-info">
+                                <div class="room-item-icon">🍳</div>
+                                <div>
+                                    <div class="room-item-name">Cocina</div>
+                                    <div class="room-item-meta">Activo</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="room-item">
+                            <div class="room-item-info">
+                                <div class="room-item-icon">🛋️</div>
+                                <div>
+                                    <div class="room-item-name">Salón</div>
+                                    <div class="room-item-meta">Activo</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="room-item">
+                            <div class="room-item-info">
+                                <div class="room-item-icon">🌿</div>
+                                <div>
+                                    <div class="room-item-name">Terraza</div>
+                                    <div class="room-item-meta">Activo</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+
+                    <button class="button button-secondary" style="margin-top: 20px;">
+                        + Añadir más espacios
+                    </button>
+
+                    <div style="border-top: 2px solid #e2e8f0; margin: 30px 0; padding-top: 20px;">
+                        <button class="button button-primary">Guardar cambios</button>
+                        <button style="width: 100%; padding: 12px; background: transparent; border: none; color: #e53e3e; cursor: pointer; font-weight: 600;">
+                            Resetear configuración
+                        </button>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Vista consolidada de toda la configuración</li>
+                            <li>Edición granular (item por item)</li>
+                            <li>Opción de añadir más espacios</li>
+                            <li>Opción de reset (útil si se mudan)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 8: Impacto en Sugerencias -->
+            <div class="wireframe">
+                <div class="wireframe-header">
+                    Pantalla 8: Ejemplo de Impacto en Sugerencias
+                </div>
+                <div class="wireframe-content">
+                    <h2 class="screen-title">¿Cómo afecta esto?</h2>
+                    <p class="screen-subtitle">Comparación de sugerencias antes/después</p>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #e53e3e; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span>❌</span>
+                            <span>Sin configuración</span>
+                        </h3>
+                        <div style="background: #fff5f5; border: 2px solid #feb2b2; border-radius: 12px; padding: 20px;">
+                            <div style="font-weight: 600; color: #742a2a; margin-bottom: 10px;">
+                                Sugerencia genérica:
+                            </div>
+                            <div style="color: #742a2a;">
+                                "Limpia tu jardín o espacio exterior"
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85em; color: #9b2c2c; font-style: italic;">
+                                ❌ No tengo jardín, tengo terraza
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #38a169; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span>✅</span>
+                            <span>Con tu configuración</span>
+                        </h3>
+                        <div style="background: #c6f6d5; border: 2px solid #68d391; border-radius: 12px; padding: 20px;">
+                            <div style="font-weight: 600; color: #22543d; margin-bottom: 10px;">
+                                Sugerencia personalizada:
+                            </div>
+                            <div style="color: #22543d;">
+                                "Limpia tu terraza"
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85em; color: #276749;">
+                                🎯 Específica y relevante para tu espacio
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 25px;">
+                        <p>
+                            <strong>Otro ejemplo:</strong><br>
+                            Si tienes 2 baños, verás tareas como "Limpiar baño 1" y "Limpiar baño 2" 
+                            para poder hacer seguimiento independiente de cada uno.
+                        </p>
+                    </div>
+
+                    <div class="notes">
+                        <h3>💡 Nota de diseño</h3>
+                        <ul>
+                            <li>Mostrar valor concreto de la personalización</li>
+                            <li>Comparación visual antes/después</li>
+                            <li>Ejemplos reales que el usuario experimenta</li>
+                            <li>Refuerza decisión de configurar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN DE IMPLEMENTACIÓN TÉCNICA -->
+        <div style="background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px;">
+            <h2 style="color: #2d3748; margin-bottom: 20px;">🔧 Modelo de Datos Actualizado</h2>
+            
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">HomeConfig (actualizado)</h3>
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.9em; line-height: 1.6;">
+interface HomeConfig {
+  userId: string;
+  homeName: string; // "Mi hogar" por defecto
+  
+  rooms: {
+    id: string; // auto-generado
+    type: RoomType; // 'bedroom' | 'bathroom' | 'kitchen' | etc
+    name: string; // "Dormitorio 1", "Baño principal"
+    customName?: string; // Usuario puede renombrar
+    icon: string; // emoji para UI
+    enabled: boolean;
+    
+    // Metadata de gestión
+    priority: 'high' | 'medium' | 'low';
+    lastCleaned?: Date;
+    maintenancePoints: number;
+  }[];
+  
+  // Configuración numérica
+  bedroomsCount: number;
+  bathroomsCount: number;
+  
+  // Espacios comunes (booleanos)
+  hasKitchen: boolean;
+  hasLivingRoom: boolean;
+  hasDiningRoom: boolean;
+  
+  // Espacios adicionales
+  additionalSpaces: AdditionalSpace[];
+  
+  weeklyPointsGoal: number;
+  currentWeekPoints: number;
+  
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type AdditionalSpace = 
+  | 'terrace' 
+  | 'balcony' 
+  | 'office' 
+  | 'garage' 
+  | 'storage'
+  | 'garden'
+  | 'laundry'
+  | 'game_room'
+  | 'library'
+  | 'gym';
+
+type RoomType = 
+  | 'bedroom'
+  | 'bathroom'
+  | 'kitchen'
+  | 'living_room'
+  | 'dining_room'
+  | AdditionalSpace;
+                </pre>
+            </div>
+
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Inicialización de Configuración</h3>
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.9em; line-height: 1.6;">
+function initializeHomeConfig(
+  bedroomsCount: number,
+  bathroomsCount: number,
+  hasKitchen: boolean,
+  hasLivingRoom: boolean,
+  hasDiningRoom: boolean,
+  additionalSpaces: AdditionalSpace[]
+): HomeConfig {
+  
+  const rooms: Room[] = [];
+  
+  // Generar dormitorios
+  for (let i = 1; i <= bedroomsCount; i++) {
+    rooms.push({
+      id: generateId(),
+      type: 'bedroom',
+      name: `Dormitorio ${i}`,
+      icon: '🛏️',
+      enabled: true,
+      priority: i === 1 ? 'high' : 'medium',
+      maintenancePoints: 0,
+    });
+  }
+  
+  // Generar baños
+  for (let i = 1; i <= bathroomsCount; i++) {
+    rooms.push({
+      id: generateId(),
+      type: 'bathroom',
+      name: i === 1 ? 'Baño principal' : `Baño ${i}`,
+      icon: '🚿',
+      enabled: true,
+      priority: 'high',
+      maintenancePoints: 0,
+    });
+  }
+  
+  // Espacios comunes
+  if (hasKitchen) {
+    rooms.push({
+      id: generateId(),
+      type: 'kitchen',
+      name: 'Cocina',
+      icon: '🍳',
+      enabled: true,
+      priority: 'high',
+      maintenancePoints: 0,
+    });
+  }
+  
+  if (hasLivingRoom) {
+    rooms.push({
+      id: generateId(),
+      type: 'living_room',
+      name: 'Salón',
+      icon: '🛋️',
+      enabled: true,
+      priority: 'medium',
+      maintenancePoints: 0,
+    });
+  }
+  
+  // Espacios adicionales
+  additionalSpaces.forEach(space => {
+    rooms.push({
+      id: generateId(),
+      type: space,
+      name: SPACE_NAMES[space],
+      icon: SPACE_ICONS[space],
+      enabled: true,
+      priority: 'low',
+      maintenancePoints: 0,
+    });
+  });
+  
+  return {
+    userId: getCurrentUserId(),
+    homeName: 'Mi hogar',
+    rooms,
+    bedroomsCount,
+    bathroomsCount,
+    hasKitchen,
+    hasLivingRoom,
+    hasDiningRoom,
+    additionalSpaces,
+    weeklyPointsGoal: 10,
+    currentWeekPoints: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+                </pre>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE INTEGRACIÓN CON FLUJOS -->
+        <div style="background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px;">
+            <h2 style="color: #2d3748; margin-bottom: 20px;">🔗 Integración con Flujos Existentes</h2>
+            
+            <h3 style="color: #667eea; margin-top: 25px; margin-bottom: 15px;">1. Filtrado de Tareas por Configuración</h3>
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.9em; line-height: 1.6;">
+// Antes de sugerir tareas, filtrar por espacios disponibles
+async function getAvailableTasksForUser(userId: string): Promise<Task[]> {
+  const homeConfig = await getHomeConfig(userId);
+  const allTasks = await getAllTasks();
+  
+  // Filtrar tareas según espacios configurados
+  return allTasks.filter(task => {
+    // Si la tarea no está asociada a ninguna habitación, incluirla
+    if (!task.room) return true;
+    
+    // Verificar si el usuario tiene ese tipo de espacio
+    const hasRoom = homeConfig.rooms.some(
+      room => room.type === task.room && room.enabled
+    );
+    
+    return hasRoom;
+  });
+}
+                </pre>
+            </div>
+
+            <h3 style="color: #667eea; margin-bottom: 15px;">2. Generación de Tareas Específicas</h3>
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.9em; line-height: 1.6;">
+// Generar tareas dinámicas para cada espacio configurado
+function generateRoomSpecificTasks(homeConfig: HomeConfig): Task[] {
+  const tasks: Task[] = [];
+  
+  homeConfig.rooms.forEach(room => {
+    // Para cada dormitorio, generar tarea específica
+    if (room.type === 'bedroom') {
+      tasks.push({
+        id: `make_bed_${room.id}`,
+        title: `Hacer la cama - ${room.name}`,
+        room: room.id,
+        category: 'organizing',
+        estimatedMinutes: 3,
+        effortLevel: 'low',
+        impactLevel: 'high',
+      });
+    }
+    
+    // Para baños
+    if (room.type === 'bathroom') {
+      tasks.push({
+        id: `clean_bathroom_${room.id}`,
+        title: `Limpiar ${room.name}`,
+        room: room.id,
+        category: 'cleaning',
+        estimatedMinutes: 15,
+        effortLevel: 'medium',
+        impactLevel: 'high',
+      });
+    }
+    
+    // Para terraza
+    if (room.type === 'terrace') {
+      tasks.push({
+        id: `clean_terrace_${room.id}`,
+        title: 'Limpiar terraza',
+        room: room.id,
+        category: 'cleaning',
+        estimatedMinutes: 20,
+        effortLevel: 'medium',
+        impactLevel: 'medium',
+      });
+    }
+  });
+  
+  return tasks;
+}
+                </pre>
+            </div>
+
+            <h3 style="color: #667eea; margin-bottom: 15px;">3. Vista de Habitaciones Actualizada</h3>
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.9em; line-height: 1.6;">
+// La pantalla "Estado de tu hogar" ahora usa datos reales
+function HomeOverviewScreen() {
+  const homeConfig = useHomeConfig();
+  
+  return (
+    <div>
+      <h2>Estado de {homeConfig.homeName}</h2>
+      
+      {homeConfig.rooms.map(room => (
+        <RoomCard
+          key={room.id}
+          name={room.customName || room.name}
+          icon={room.icon}
+          lastCleaned={room.lastCleaned}
+          points={room.maintenancePoints}
+          priority={room.priority}
+        />
+      ))}
+    </div>
+  );
+}
+                </pre>
+            </div>
+        </div>
+
+        <!-- RESUMEN FINAL -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; padding: 30px; text-align: center;">
+            <h2 style="margin-bottom: 15px;">✨ Configuración Personalizada</h2>
+            <p style="opacity: 0.9; font-size: 1.1em; margin-bottom: 20px;">
+                Tu hogar, tu forma de organizarlo
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">🎯</div>
+                    <div style="font-weight: 600;">Relevante</div>
+                    <div style="opacity: 0.8; font-size: 0.9em;">Solo tus espacios</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">⚡</div>
+                    <div style="font-weight: 600;">Rápido</div>
+                    <div style="opacity: 0.8; font-size: 0.9em;">< 2 minutos</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">✏️</div>
+                    <div style="font-weight: 600;">Editable</div>
+                    <div style="opacity: 0.8; font-size: 0.9em;">Siempre que quieras</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
