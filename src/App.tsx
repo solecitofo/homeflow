@@ -21,6 +21,9 @@ import { TaskExecutionScreen } from './features/tasks/components/TaskExecutionSc
 import { LearnHome } from './features/learn/components/LearnHome';
 import { ArticleReader } from './features/learn/components/ArticleReader';
 
+// Shared
+import { ProtectedRoute } from './shared/components/ProtectedRoute';
+
 function App() {
   return (
     <BrowserRouter basename="/">
@@ -36,11 +39,11 @@ function App() {
         <Route path="/onboarding/first-task" element={<FirstGuidedTask />} />
         <Route path="/onboarding/complete" element={<OnboardingComplete />} />
         
-        {/* Main App */}
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/tasks/:taskId" element={<TaskExecutionScreen />} />
-        <Route path="/learn" element={<LearnHome />} />
-        <Route path="/learn/:articleId" element={<ArticleReader />} />
+        {/* Main App - Protected Routes */}
+        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/tasks/:taskId" element={<ProtectedRoute><TaskExecutionScreen /></ProtectedRoute>} />
+        <Route path="/learn" element={<ProtectedRoute><LearnHome /></ProtectedRoute>} />
+        <Route path="/learn/:articleId" element={<ProtectedRoute><ArticleReader /></ProtectedRoute>} />
         
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/onboarding" replace />} />
