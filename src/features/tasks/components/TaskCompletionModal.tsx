@@ -93,19 +93,63 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-2xl font-bold text-gray-800 text-center mb-2"
+          className="text-3xl font-bold text-gray-800 text-center mb-2"
         >
-          ¡Tarea completada!
+          ¡Lo hiciste!
         </motion.h2>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
+          className="text-gray-600 text-center mb-2"
+        >
+          Completaste: <strong>{task.title}</strong>
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
           className="text-gray-600 text-center mb-8"
         >
-          {task.title}
+          en {actualMinutes} minutos
         </motion.p>
+
+        {/* Mood Comparison */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 mb-6"
+        >
+          <div className="grid grid-cols-3 gap-4 items-center">
+            {/* Before */}
+            <div className="text-center">
+              <div className="text-xs text-gray-600 font-semibold mb-2">ANTES</div>
+              <div className="text-5xl">{['😣', '😔', '😐', '😊', '😄'][moodBefore - 1]}</div>
+            </div>
+
+            {/* Arrow */}
+            <div className="text-center text-3xl text-green-500">
+              →
+            </div>
+
+            {/* After */}
+            <div className="text-center">
+              <div className="text-xs text-gray-600 font-semibold mb-2">AHORA</div>
+              <div className="text-5xl">{['😣', '😔', '😐', '😊', '😄'][moodAfter - 1]}</div>
+            </div>
+          </div>
+
+          {/* Mood Message */}
+          <div className="text-center mt-4">
+            <div className="text-2xl mb-2">{moodMessage.icon}</div>
+            <p className={`font-semibold ${moodMessage.color}`}>
+              {moodMessage.text}
+            </p>
+          </div>
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
@@ -145,19 +189,6 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
             <div className="text-xs text-gray-600">minutos</div>
           </motion.div>
         </div>
-
-        {/* Mood Improvement */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-6 text-center"
-        >
-          <div className="text-3xl mb-2">{moodMessage.icon}</div>
-          <p className={`font-semibold ${moodMessage.color}`}>
-            {moodMessage.text}
-          </p>
-        </motion.div>
 
         {/* Additional info */}
         {savedTime > 0 && (

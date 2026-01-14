@@ -29,20 +29,22 @@ const EmotionalOption: React.FC<EmotionalOptionProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
+      whileHover={{ x: 5 }}
+      whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(state)}
       className={`
-        bg-white border-2 rounded-2xl p-6 cursor-pointer
-        transition-all duration-200 active:scale-[0.98]
+        bg-white border-2 rounded-xl p-5 cursor-pointer
+        transition-all duration-300 flex items-center gap-4
         ${
           selected
             ? 'border-primary-500 bg-primary-50 shadow-lg'
-            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50 hover:shadow-md'
+            : 'border-gray-200 hover:border-primary-500 hover:bg-gray-50'
         }
       `}
     >
-      <div className="text-center">
-        <div className="text-5xl mb-3">{icon}</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
+      <div className="text-5xl min-w-[60px] text-center">{icon}</div>
+      <div className="flex-1 text-left">
+        <h3 className="text-lg font-semibold text-gray-800 mb-1">{title}</h3>
         <p className="text-sm text-gray-600">{subtitle}</p>
       </div>
     </motion.div>

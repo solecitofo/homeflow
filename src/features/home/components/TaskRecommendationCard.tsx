@@ -60,61 +60,52 @@ export const TaskRecommendationCard: React.FC<TaskRecommendationCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
+      whileHover={{ scale: 1.02, y: -5 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="bg-white border-2 border-gray-200 rounded-2xl p-5 cursor-pointer
-                 hover:border-primary-500 hover:bg-primary-50 hover:shadow-lg
-                 active:scale-[0.98] transition-all duration-200"
+      className="bg-gradient-to-br from-primary-500 to-primary-900 rounded-2xl p-6 cursor-pointer
+                 shadow-lg hover:shadow-2xl transition-all duration-300 text-white"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          {/* Título */}
-          <h3 className="text-lg font-bold text-gray-800 mb-2">{task.title}</h3>
-
-          {/* Descripción */}
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-            {task.description}
-          </p>
-
-          {/* Badges */}
-          <div className="flex flex-wrap gap-2">
-            {/* Tiempo estimado */}
-            <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-              <Clock className="w-4 h-4" />
-              <span>{task.estimatedMinutes} min</span>
-            </div>
-
-            {/* Nivel de esfuerzo */}
-            <div
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getEffortColor(
-                task.effortLevel
-              )}`}
-            >
-              {getEffortLabel(task.effortLevel)}
-            </div>
-
-            {/* Alto impacto */}
-            {task.impactLevel === 'high' && (
-              <div className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-                {getImpactIcon(task.impactLevel)}
-                <span>Alto impacto</span>
-              </div>
-            )}
-
-            {/* Habitación */}
-            {task.room && (
-              <div className="flex items-center gap-1 px-3 py-1 bg-sage-100 text-sage-700 rounded-full text-sm">
-                <Home className="w-4 h-4" />
-                <span className="capitalize">{task.room.replace('_', ' ')}</span>
-              </div>
-            )}
-          </div>
+      <div className="flex flex-col">
+        {/* Badge superior */}
+        <div className="mb-4">
+          <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+            {task.isMicroTask ? '🎯 Tu micro-misión' : '💡 Tarea recomendada'}
+          </span>
         </div>
 
-        {/* Icono de acción */}
-        <div className="ml-4 flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-            <ChevronRight className="w-6 h-6 text-primary-600" />
+        {/* Título */}
+        <h3 className="text-2xl font-bold mb-3">{task.title}</h3>
+
+        {/* Descripción */}
+        <p className="text-white/90 mb-4 line-clamp-2 leading-relaxed">
+          {task.description}
+        </p>
+
+        {/* Meta información */}
+        <div className="flex flex-wrap gap-3 text-sm text-white/90">
+          {/* Tiempo */}
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            <span>{task.estimatedMinutes} minutos</span>
           </div>
+
+          {/* Impacto */}
+          {task.impactLevel === 'high' && (
+            <div className="flex items-center gap-1">
+              <span>⭐⭐⭐⭐⭐ Impacto alto</span>
+            </div>
+          )}
+          {task.impactLevel === 'medium' && (
+            <div className="flex items-center gap-1">
+              <span>⭐⭐⭐ Impacto medio</span>
+            </div>
+          )}
+          {task.impactLevel === 'low' && (
+            <div className="flex items-center gap-1">
+              <span>✨ Impacto bajo</span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

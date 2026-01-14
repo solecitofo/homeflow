@@ -7,18 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Paleta HomeFlow
+        // Paleta HomeFlow - Actualizada con gradientes de wireframes
         primary: {
           50: '#f5f3ff',
           100: '#ede9fe',
           200: '#ddd6fe',
           300: '#c4b5fd',
           400: '#a78bfa',
-          500: '#8B7FC8', // Púrpura suave principal
-          600: '#7c6fb5',
-          700: '#6d5fa0',
-          800: '#5e4f8b',
-          900: '#4f3f76',
+          500: '#667eea', // Púrpura principal de wireframes
+          600: '#5568d3',
+          700: '#4453bc',
+          800: '#3a46a5',
+          900: '#764ba2', // Púrpura oscuro del gradient
         },
         sage: {
           50: '#f6f9f3',
