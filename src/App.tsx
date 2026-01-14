@@ -11,19 +11,8 @@ import { ConfigurationSummary } from './features/onboarding/components/Configura
 import { FirstGuidedTask } from './features/onboarding/components/FirstGuidedTask';
 import { OnboardingComplete } from './features/onboarding/components/OnboardingComplete';
 
-// Placeholder para home (temporal)
-const HomePage = () => (
-  <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sage-50 flex items-center justify-center p-4">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-800 mb-4">🏠 HomeFlow</h1>
-      <p className="text-gray-600 mb-8">Pantalla principal en construcción</p>
-      <p className="text-sm text-gray-500">
-        El onboarding está completo. Esta será la pantalla principal donde<br/>
-        los usuarios elegirán su estado emocional para recibir sugerencias.
-      </p>
-    </div>
-  </div>
-);
+// Home
+import { HomePage } from './features/home/components/HomePage';
 
 // Placeholder para learn (temporal)
 const LearnPage = () => (
