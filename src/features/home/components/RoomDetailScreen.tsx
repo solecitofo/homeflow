@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Confetti from 'react-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Clock, Play, ListChecks, CheckCircle2 } from 'lucide-react';
@@ -106,6 +107,12 @@ export const RoomDetailScreen: React.FC = () => {
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [completedToday, setCompletedToday] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [showTaskComplete, setShowTaskComplete] = useState(false);
+  // Secuencia "Hacer todas"
+  const [multiTaskMode, setMultiTaskMode] = useState(false);
+  const [multiTaskQueue, setMultiTaskQueue] = useState<string[]>([]);
+  const [multiTaskIndex, setMultiTaskIndex] = useState(0);
+  const multiTaskActive = useRef(false);
 
   const room = roomId ? roomsData[roomId] : null;
 
@@ -165,14 +172,23 @@ export const RoomDetailScreen: React.FC = () => {
     .filter(m => selectedMissions.has(m.id))
     .reduce((acc, m) => acc + m.durationMinutes, 0);
 
-  const handleDoOne = async (taskId?: string) => {
+  const handleDoOne = async (taskId?: string, isMulti?: boolean) => {
     // Si se pasa un taskId, usar esa tarea directamente
     if (taskId) {
       navigate('/task/execute', {
         state: {
           taskId,
           fromRoom: room.id,
-          intensityPreselected: 'standard'
+          intensityPreselected: 'standard',
+          onComplete: () => {
+            setShowTaskComplete(true);
+            setTimeout(() => {
+              setShowTaskComplete(false);
+              if (isMulti && multiTaskActive.current) {
+                setMultiTaskIndex(idx => idx + 1);
+              }
+            }, 1800);
+          }
         }
       });
       return;
@@ -186,7 +202,11 @@ export const RoomDetailScreen: React.FC = () => {
         state: {
           taskId: pendingTask.id,
           fromRoom: room.id,
-          intensityPreselected: 'standard'
+          intensityPreselected: 'standard',
+          onComplete: () => {
+            setShowTaskComplete(true);
+            setTimeout(() => setShowTaskComplete(false), 2000);
+          }
         }
       });
     } else if (availableTasks.length > 0) {
@@ -195,19 +215,48 @@ export const RoomDetailScreen: React.FC = () => {
         state: {
           taskId: availableTasks[0].id,
           fromRoom: room.id,
-          intensityPreselected: 'standard'
+          intensityPreselected: 'standard',
+          onComplete: () => {
+            setShowTaskComplete(true);
+            setTimeout(() => setShowTaskComplete(false), 2000);
+          }
         }
       });
     }
   };
 
   const handleDoAll = () => {
-    // TODO: Implementar secuencia de múltiples tareas
-    // Por ahora, iniciar con la primera tarea
-    if (room.missions.length > 0) {
-      handleDoOne(room.missions[0].id);
-    }
+    // Secuencia: solo tareas no completadas hoy
+    const pending = availableTasks.filter(t => !completedToday.has(t.id)).map(t => t.id);
+    if (pending.length === 0) return;
+    setMultiTaskQueue(pending);
+    setMultiTaskIndex(0);
+    setMultiTaskMode(true);
+    multiTaskActive.current = true;
+    // Lanzar la primera tarea
+    handleDoOne(pending[0], true);
   };
+
+  // Secuencia: al completar una tarea, lanzar la siguiente
+  useEffect(() => {
+    if (!multiTaskMode) return;
+    if (!multiTaskActive.current) return;
+    if (multiTaskIndex >= multiTaskQueue.length) {
+      // Fin de la secuencia
+      setTimeout(() => {
+        setMultiTaskMode(false);
+        setMultiTaskQueue([]);
+        setMultiTaskIndex(0);
+        multiTaskActive.current = false;
+      }, 1800);
+      return;
+    }
+    // Lanzar siguiente tarea si no es la primera
+    if (multiTaskIndex > 0 && multiTaskIndex < multiTaskQueue.length) {
+      handleDoOne(multiTaskQueue[multiTaskIndex], true);
+    }
+    // eslint-disable-next-line
+  }, [multiTaskIndex, multiTaskMode]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-primary-50 p-4">
@@ -251,12 +300,37 @@ export const RoomDetailScreen: React.FC = () => {
             Cargando tareas...
           </div>
         ) : availableTasks.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">No hay tareas disponibles para esta habitación</p>
+          <div className="text-center py-16">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', duration: 0.6 }}
+              className="flex flex-col items-center mb-4"
+            >
+              <CheckCircle2 className="w-16 h-16 text-gray-300 mb-2" />
+              <span className="text-lg text-gray-500">No hay tareas disponibles para esta habitación</span>
+            </motion.div>
             <Button onClick={() => navigate('/rooms')}>Volver</Button>
           </div>
         ) : (
           <>
+            {/* Feedback visual al completar tarea */}
+            <AnimatePresence>
+              {showTaskComplete && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
+                >
+                  <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={180} recycle={false} />
+                  <div className="bg-white rounded-full shadow-lg p-8 flex flex-col items-center">
+                    <CheckCircle2 className="w-24 h-24 text-green-500 mb-2 animate-bounce" />
+                    <span className="text-2xl font-bold text-green-700">¡Tarea completada!</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {/* Tasks List */}
             <div className="space-y-3 mb-6">
               {availableTasks.map((task, index) => {
@@ -270,7 +344,6 @@ export const RoomDetailScreen: React.FC = () => {
                   'from-indigo-400 to-indigo-600',
                 ];
                 const color = colors[index % colors.length];
-
                 return (
                   <motion.button
                     key={task.id}
@@ -280,8 +353,7 @@ export const RoomDetailScreen: React.FC = () => {
                     whileHover={{ x: 5 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleDoOne(task.id)}
-                    className={`w-full bg-gradient-to-r ${isCompleted ? 'from-gray-300 to-gray-400' : color} rounded-xl p-4 text-white shadow-md
-                               flex items-center justify-between transition-all relative ${isCompleted ? 'opacity-70' : ''}`}
+                    className={`w-full bg-gradient-to-r ${isCompleted ? 'from-gray-300 to-gray-400' : color} rounded-xl p-4 text-white shadow-md flex items-center justify-between transition-all relative ${isCompleted ? 'opacity-70' : ''}`}
                   >
                     {isCompleted && (
                       <div className="absolute top-2 right-2">
@@ -307,7 +379,7 @@ export const RoomDetailScreen: React.FC = () => {
         )}
 
         {/* Action Buttons */}
-        {!loading && availableTasks.length > 0 && (
+        {!loading && availableTasks.length > 0 && !multiTaskMode && (
           <div className="space-y-3">
             <Button
               onClick={() => handleDoOne()}
@@ -327,9 +399,25 @@ export const RoomDetailScreen: React.FC = () => {
               disabled={availableTasks.length === 0}
             >
               <ListChecks className="w-5 h-5 mr-2" />
-              Hacer todas ({availableTasks.reduce((a, t) => a + t.estimatedMinutes, 0)} min)
+              Hacer todas ({availableTasks.filter(t => !completedToday.has(t.id)).reduce((a, t) => a + t.estimatedMinutes, 0)} min)
             </Button>
           </div>
+        )}
+
+        {/* Mensaje de fin de secuencia */}
+        {multiTaskMode && multiTaskIndex >= multiTaskQueue.length && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-0 flex items-center justify-center z-50"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl p-10 flex flex-col items-center border-2 border-green-200">
+              <CheckCircle2 className="w-24 h-24 text-green-500 mb-4 animate-bounce" />
+              <span className="text-3xl font-bold text-green-700 mb-2">¡Completaste todas las tareas pendientes!</span>
+              <Button onClick={() => { setMultiTaskMode(false); setMultiTaskQueue([]); setMultiTaskIndex(0); multiTaskActive.current = false; }} className="mt-6">Volver a la habitación</Button>
+            </div>
+          </motion.div>
         )}
 
         {/* Motivational Note */}

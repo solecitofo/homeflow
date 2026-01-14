@@ -159,6 +159,24 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
           </Button>
+
+          <Button
+            variant="destructive"
+            onClick={() => { /* TODO: funcionalidad urgente */ }}
+            className="h-auto py-6"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <span className="text-2xl text-red-600 font-bold">!</span>
+              </div>
+              <div className="text-left">
+                <p className="font-bold text-lg">Urgente</p>
+                <p className="text-sm text-gray-600">
+                  Acceso rápido a lo urgente
+                </p>
+              </div>
+            </div>
+          </Button>
         </motion.div>
 
         {/* Footer */}

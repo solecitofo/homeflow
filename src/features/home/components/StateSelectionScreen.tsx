@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import type { UserIntention } from '../types';
-import { ProgressSummary } from './ProgressSummary';
 import { CreateCustomTaskModal } from '../../tasks/components/CreateCustomTaskModal';
 
 interface StateOption {
@@ -88,6 +87,14 @@ const stateOptions: StateOption[] = [
     route: '/my-tasks',
     color: 'from-amber-100 to-amber-50 border-amber-200 hover:border-amber-400',
   },
+  {
+    icon: '🚨',
+    title: 'Urgente',
+    subtitle: 'Acceso rápido a lo urgente',
+    intention: 'urgent',
+    route: '#', // Sin funcionalidad aún
+    color: 'from-red-100 to-red-50 border-red-300 hover:border-red-500',
+  },
 ];
 
 export const StateSelectionScreen: React.FC = () => {
@@ -139,10 +146,7 @@ export const StateSelectionScreen: React.FC = () => {
           </motion.p>
         </motion.div>
 
-        {/* Progress Summary */}
-        <div className="mb-8">
-          <ProgressSummary />
-        </div>
+        
 
         {/* State Options */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -154,12 +158,16 @@ export const StateSelectionScreen: React.FC = () => {
               transition={{ delay: 0.4 + index * 0.08 }}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => handleSelect(option)}
+              onClick={() => {
+                if (option.intention !== 'urgent') handleSelect(option);
+              }}
               className={`
                 w-full bg-gradient-to-br ${option.color}
                 border-2 rounded-2xl p-5 text-left
                 transition-all duration-200 shadow-sm hover:shadow-md
+                ${option.intention === 'urgent' ? 'ring-2 ring-red-400' : ''}
               `}
+              disabled={option.intention === 'urgent'}
             >
               <div className="flex items-start gap-4">
                 <span className="text-4xl">{option.icon}</span>
