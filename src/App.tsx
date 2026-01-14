@@ -17,19 +17,9 @@ import { HomePage } from './features/home/components/HomePage';
 // Tasks
 import { TaskExecutionScreen } from './features/tasks/components/TaskExecutionScreen';
 
-// Placeholder para learn (temporal)
-const LearnPage = () => (
-  <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sage-50 flex items-center justify-center p-4">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-800 mb-4">💡 Aprende</h1>
-      <p className="text-gray-600 mb-8">Sección educativa en construcción</p>
-      <p className="text-sm text-gray-500">
-        Aquí irán los artículos sobre activación conductual,<br/>
-        psicología del comportamiento y creación de hábitos.
-      </p>
-    </div>
-  </div>
-);
+// Learn
+import { LearnHome } from './features/learn/components/LearnHome';
+import { ArticleReader } from './features/learn/components/ArticleReader';
 
 function App() {
   return (
@@ -49,8 +39,8 @@ function App() {
         {/* Main App */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/tasks/:taskId" element={<TaskExecutionScreen />} />
-        <Route path="/learn" element={<LearnPage />} />
-        <Route path="/learn/:articleId" element={<LearnPage />} />
+        <Route path="/learn" element={<LearnHome />} />
+        <Route path="/learn/:articleId" element={<ArticleReader />} />
         
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/onboarding" replace />} />
