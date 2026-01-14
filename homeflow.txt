@@ -1,0 +1,1290 @@
+ARQUITECTURA TÉCNICA DEL SISTEMA
+MODELO DE DATOS
+Necesitamos capturar información que permita al sistema tomar decisiones inteligentes:
+// ESTADO DEL USUARIO (snapshot actual)
+interface UserState {
+  timestamp: Date;
+  emotionalState: 'overwhelmed' | 'energized' | 'stuck' | 'neutral';
+  availableTime?: number; // minutos estimados
+  energyLevel?: 'low' | 'medium' | 'high';
+  barrier?: 'no_energy' | 'dont_know_what' | 'perfectionism' | 'anxiety';
+}
+
+// TAREA/ACTIVIDAD
+interface Task {
+  id: string;
+  category: 'cleaning' | 'organizing' | 'shopping' | 'maintenance';
+  room?: 'kitchen' | 'bedroom' | 'bathroom' | 'living_room';
+  title: string;
+  description: string;
+  
+  // Metadata para el motor de decisión
+  estimatedMinutes: number;
+  effortLevel: 'micro' | 'low' | 'medium' | 'high'; // 2min | 5-10min | 15-20min | 30+min
+  impactLevel: 'low' | 'medium' | 'high'; // impacto visual/emocional
+  
+  // Para micro-tareas
+  isMicroTask: boolean;
+  parentTaskId?: string; // si es parte de una tarea mayor
+  
+  // Complejidad cognitiva
+  requiresDecisions: boolean; // ¿hay que tomar decisiones mientras se hace?
+  requiresMovement: boolean; // ¿requiere moverse/esfuerzo físico?
+  
+  // Configuración de intensidad
+  intensityLevels?: {
+    basic: { description: string; minutes: number };
+    standard: { description: string; minutes: number };
+    deep: { description: string; minutes: number };
+  };
+}
+
+// REGISTRO DE ACTIVIDAD
+interface ActivityLog {
+  id: string;
+  userId: string;
+  taskId: string;
+  
+  // Estado pre-tarea
+  startTime: Date;
+  startEmotionalState: EmotionalState;
+  startEnergyLevel?: number; // 1-10
+  
+  // Estado durante
+  completed: boolean;
+  actualMinutes?: number;
+  interrupted?: boolean;
+  intensityChosen?: 'basic' | 'standard' | 'deep';
+  
+  // Estado post-tarea
+  endTime?: Date;
+  endEmotionalState?: EmotionalState;
+  endEnergyLevel?: number;
+  satisfactionRating?: number; // 1-5
+  
+  // Metadata
+  triggeredBy: 'user_choice' | 'system_suggestion' | 'scheduled';
+  routeUsed: 'overwhelmed' | 'energized' | 'stuck' | 'planned';
+}
+
+// ESTADO EMOCIONAL (más granular)
+interface EmotionalState {
+  mood: 'very_bad' | 'bad' | 'neutral' | 'good' | 'very_good';
+  anxiety?: number; // 1-10
+  overwhelm?: number; // 1-10
+  motivation?: number; // 1-10
+}
+
+// PATRONES DETECTADOS (aprendizaje del sistema)
+interface UserPatterns {
+  userId: string;
+  
+  // Ventanas de activación
+  bestTimeOfDay?: 'morning' | 'afternoon' | 'evening';
+  bestDayOfWeek?: string[];
+  
+  // Tareas con mejor impacto emocional
+  highImpactTasks: {
+    taskId: string;
+    averageMoodImprovement: number;
+    completionRate: number;
+  }[];
+  
+  // Preferencias detectadas
+  preferredTaskDuration: number; // promedio
+  avoidsTasksWith: string[]; // características que evita
+  
+  // Racha actual
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate: Date;
+}
+
+// CONFIGURACIÓN DE HOGAR
+interface HomeConfig {
+  userId: string;
+  rooms: {
+    id: string;
+    name: string;
+    priority: 'high' | 'medium' | 'low';
+    lastCleaned?: Date;
+    maintenancePoints: number; // sistema de puntos
+  }[];
+  
+  weeklyPointsGoal: number; // default: 10
+  currentWeekPoints: number;
+}
+
+// LISTA DE COMPRAS
+interface ShoppingList {
+  userId: string;
+  items: {
+    id: string;
+    name: string;
+    addedAt: Date;
+    addedBy: 'user' | 'suggestion';
+    category?: string;
+    checked: boolean;
+  }[];
+  
+  // Historial para sugerencias
+  frequentItems: {
+    name: string;
+    averageDaysBetweenPurchases: number;
+    lastPurchased?: Date;
+  }[];
+}
+
+
+
+
+MOTOR DE DECISIÓN: LÓGICA DE RECOMENDACIÓN
+Este es el cerebro del sistema. Decide qué sugerir según el contexto.
+Algoritmo de Recomendación
+
+
+
+class TaskRecommendationEngine {
+  
+  /**
+   * Función principal: recomienda tarea según estado del usuario
+   */
+  async recommendTask(
+    userState: UserState,
+    userPatterns: UserPatterns,
+    homeConfig: HomeConfig,
+    activityHistory: ActivityLog[]
+  ): Promise<Task> {
+    
+    // PASO 1: Determinar estrategia TCC según estado emocional
+    const strategy = this.selectTCCStrategy(userState);
+    
+    // PASO 2: Filtrar tareas disponibles según estrategia
+    const candidateTasks = await this.filterTasksByStrategy(
+      strategy,
+      userState,
+      homeConfig
+    );
+    
+    // PASO 3: Scoring de tareas según múltiples criterios
+    const scoredTasks = this.scoreTasks(
+      candidateTasks,
+      userState,
+      userPatterns,
+      activityHistory
+    );
+    
+    // PASO 4: Seleccionar la mejor opción
+    return scoredTasks[0];
+  }
+  
+  /**
+   * PASO 1: Seleccionar estrategia TCC
+   */
+  private selectTCCStrategy(userState: UserState): TCCStrategy {
+    
+    // RUTA A: Usuario abrumado
+    if (userState.emotionalState === 'overwhelmed') {
+      return {
+        name: 'micro_activation',
+        principles: [
+          'minimize_cognitive_load',
+          'immediate_action',
+          'no_choice_paralysis'
+        ],
+        filters: {
+          isMicroTask: true,
+          maxMinutes: 5,
+          requiresDecisions: false,
+          effortLevel: 'micro'
+        }
+      };
+    }
+    
+    // RUTA B: Usuario con energía
+    if (userState.emotionalState === 'energized' && userState.energyLevel === 'high') {
+      return {
+        name: 'capitalize_activation',
+        principles: [
+          'maximize_impact',
+          'leverage_momentum',
+          'high_reinforcement_tasks'
+        ],
+        filters: {
+          maxMinutes: userState.availableTime || 20,
+          impactLevel: ['medium', 'high'],
+          // Priorizar tareas que históricamente generan satisfacción
+        }
+      };
+    }
+    
+    // RUTA C: Usuario bloqueado/estancado
+    if (userState.emotionalState === 'stuck') {
+      
+      // Sub-estrategia según la barrera específica
+      if (userState.barrier === 'no_energy') {
+        return {
+          name: 'low_effort_activation',
+          principles: ['minimize_physical_effort', 'mental_tasks_ok'],
+          filters: {
+            requiresMovement: false,
+            effortLevel: ['micro', 'low'],
+            category: ['organizing', 'shopping'] // planificar, no ejecutar
+          }
+        };
+      }
+      
+      if (userState.barrier === 'dont_know_what') {
+        return {
+          name: 'remove_choice',
+          principles: ['provide_direction', 'random_ok'],
+          filters: {
+            // Cualquier tarea de bajo esfuerzo
+            effortLevel: ['micro', 'low']
+          }
+        };
+      }
+      
+      if (userState.barrier === 'perfectionism') {
+        return {
+          name: 'challenge_perfectionism',
+          principles: ['emphasize_progress_over_perfection', 'time_boxing'],
+          filters: {
+            // Tareas con niveles de intensidad claros
+            intensityLevels: 'exists'
+          },
+          messaging: {
+            preTask: 'Recuerda: solo vas a hacer el nivel BÁSICO. Hecho es mejor que perfecto.',
+            emphasizeBasicLevel: true
+          }
+        };
+      }
+      
+      if (userState.barrier === 'anxiety') {
+        return {
+          name: 'reduce_anxiety',
+          principles: ['familiar_tasks', 'high_success_rate'],
+          filters: {
+            // Tareas que el usuario ha completado antes con éxito
+            previouslyCompleted: true,
+            effortLevel: ['micro', 'low']
+          }
+        };
+      }
+    }
+    
+    // RUTA D: Estado neutral / planificación
+    return {
+      name: 'planned_activation',
+      principles: ['user_directed', 'show_options'],
+      filters: {} // Sin filtros restrictivos
+    };
+  }
+  
+  /**
+   * PASO 2: Filtrar tareas disponibles
+   */
+  private async filterTasksByStrategy(
+    strategy: TCCStrategy,
+    userState: UserState,
+    homeConfig: HomeConfig
+  ): Promise<Task[]> {
+    
+    let allTasks = await this.getAllAvailableTasks(homeConfig);
+    
+    // Aplicar filtros de la estrategia
+    let filtered = allTasks.filter(task => {
+      
+      // Filtro: micro-tareas
+      if (strategy.filters.isMicroTask !== undefined) {
+        if (task.isMicroTask !== strategy.filters.isMicroTask) return false;
+      }
+      
+      // Filtro: duración máxima
+      if (strategy.filters.maxMinutes) {
+        if (task.estimatedMinutes > strategy.filters.maxMinutes) return false;
+      }
+      
+      // Filtro: nivel de esfuerzo
+      if (strategy.filters.effortLevel) {
+        const allowedLevels = Array.isArray(strategy.filters.effortLevel) 
+          ? strategy.filters.effortLevel 
+          : [strategy.filters.effortLevel];
+        if (!allowedLevels.includes(task.effortLevel)) return false;
+      }
+      
+      // Filtro: requiere decisiones
+      if (strategy.filters.requiresDecisions === false) {
+        if (task.requiresDecisions) return false;
+      }
+      
+      // Filtro: requiere movimiento
+      if (strategy.filters.requiresMovement === false) {
+        if (task.requiresMovement) return false;
+      }
+      
+      // Filtro: categorías específicas
+      if (strategy.filters.category) {
+        const allowedCategories = Array.isArray(strategy.filters.category)
+          ? strategy.filters.category
+          : [strategy.filters.category];
+        if (!allowedCategories.includes(task.category)) return false;
+      }
+      
+      // Filtro: nivel de impacto
+      if (strategy.filters.impactLevel) {
+        const allowedImpacts = Array.isArray(strategy.filters.impactLevel)
+          ? strategy.filters.impactLevel
+          : [strategy.filters.impactLevel];
+        if (!allowedImpacts.includes(task.impactLevel)) return false;
+      }
+      
+      // Filtro: tiene niveles de intensidad
+      if (strategy.filters.intensityLevels === 'exists') {
+        if (!task.intensityLevels) return false;
+      }
+      
+      return true;
+    });
+    
+    return filtered;
+  }
+  
+  /**
+   * PASO 3: Scoring de tareas (Machine Learning light)
+   */
+  private scoreTasks(
+    tasks: Task[],
+    userState: UserState,
+    userPatterns: UserPatterns,
+    activityHistory: ActivityLog[]
+  ): Task[] {
+    
+    const scoredTasks = tasks.map(task => {
+      let score = 0;
+      
+      // Factor 1: Historial de impacto emocional (PESO ALTO)
+      const taskPattern = userPatterns.highImpactTasks.find(
+        p => p.taskId === task.id
+      );
+      if (taskPattern) {
+        score += taskPattern.averageMoodImprovement * 30; // peso x30
+        score += taskPattern.completionRate * 20; // peso x20
+      }
+      
+      // Factor 2: Alineación con patrones temporales
+      const currentHour = new Date().getHours();
+      if (userPatterns.bestTimeOfDay) {
+        const isOptimalTime = this.checkOptimalTime(currentHour, userPatterns.bestTimeOfDay);
+        if (isOptimalTime) score += 15;
+      }
+      
+      // Factor 3: Urgencia (última vez realizada)
+      const room = task.room;
+      if (room) {
+        const roomConfig = homeConfig.rooms.find(r => r.id === room);
+        if (roomConfig?.lastCleaned) {
+          const daysSince = this.daysSince(roomConfig.lastCleaned);
+          score += Math.min(daysSince * 2, 20); // max 20 puntos
+        }
+      }
+      
+      // Factor 4: Impacto visual/emocional
+      if (task.impactLevel === 'high') score += 15;
+      if (task.impactLevel === 'medium') score += 8;
+      
+      // Factor 5: Duración vs tiempo disponible (ajuste perfecto)
+      if (userState.availableTime) {
+        const timeFit = Math.abs(task.estimatedMinutes - userState.availableTime);
+        score += Math.max(10 - timeFit, 0); // penaliza desajuste
+      }
+      
+      // Factor 6: Evitar tareas recientemente completadas (variedad)
+      const recentlyDone = activityHistory
+        .filter(log => log.taskId === task.id)
+        .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
+      
+      if (recentlyDone) {
+        const hoursSince = this.hoursSince(recentlyDone.startTime);
+        if (hoursSince < 24) score -= 20; // penaliza mucho
+        else if (hoursSince < 72) score -= 10; // penaliza moderado
+      }
+      
+      // Factor 7: Preferencia de duración detectada
+      if (userPatterns.preferredTaskDuration) {
+        const durationDiff = Math.abs(task.estimatedMinutes - userPatterns.preferredTaskDuration);
+        score += Math.max(10 - durationDiff / 2, 0);
+      }
+      
+      return { task, score };
+    });
+    
+    // Ordenar por score descendente
+    return scoredTasks
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.task);
+  }
+  
+  /**
+   * Métodos auxiliares
+   */
+  private async getAllAvailableTasks(homeConfig: HomeConfig): Promise<Task[]> {
+    // Combina:
+    // 1. Tareas predefinidas del sistema (biblioteca de tareas)
+    // 2. Tareas personalizadas del usuario
+    // 3. Tareas generadas dinámicamente según estado del hogar
+  }
+  
+  private daysSince(date: Date): number {
+    return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+  }
+  
+  private hoursSince(date: Date): number {
+    return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60));
+  }
+  
+  private checkOptimalTime(currentHour: number, bestTime: string): boolean {
+    const ranges = {
+      morning: [6, 12],
+      afternoon: [12, 18],
+      evening: [18, 23]
+    };
+    const [start, end] = ranges[bestTime];
+    return currentHour >= start && currentHour < end;
+  }
+}
+
+FLUJO DE INTERACCIÓN USUARIO-SISTEMA
+Pantalla de entrada
+
+// Componente: HomeManagementEntry.tsx
+
+function HomeManagementEntry() {
+  const [userState, setUserState] = useState<UserState | null>(null);
+  
+  const handleStateSelection = async (emotionalState: string) => {
+    
+    // Capturar estado inicial
+    const state: UserState = {
+      timestamp: new Date(),
+      emotionalState: emotionalState as any,
+    };
+    
+    // Si es "energized" o "stuck", hacer preguntas de seguimiento
+    if (emotionalState === 'energized') {
+      // Modal: "¿Cuánto tiempo tienes?"
+      const time = await askAvailableTime();
+      state.availableTime = time;
+      state.energyLevel = 'high';
+    }
+    
+    if (emotionalState === 'stuck') {
+      // Modal: "¿Qué te está frenando?"
+      const barrier = await askBarrier();
+      state.barrier = barrier;
+    }
+    
+    setUserState(state);
+    
+    // Obtener recomendación del motor
+    const recommendation = await getTaskRecommendation(state);
+    
+    // Navegar a pantalla de tarea recomendada
+    navigate('/home/task-suggestion', { state: { recommendation, userState: state } });
+  };
+  
+  return (
+    <div className="entry-screen">
+      <h2>¿Cómo puedo ayudarte hoy?</h2>
+      
+      <StateCard 
+        icon="🤯"
+        title="Estoy abrumado/a"
+        subtitle="No sé ni por dónde empezar"
+        onClick={() => handleStateSelection('overwhelmed')}
+      />
+      
+      <StateCard 
+        icon="⚡"
+        title="Tengo algo de energía"
+        subtitle="¿Qué puedo hacer?"
+        onClick={() => handleStateSelection('energized')}
+      />
+      
+      <StateCard 
+        icon="😓"
+        title="Me cuesta ponerme en marcha"
+        subtitle="Necesito un empujón"
+        onClick={() => handleStateSelection('stuck')}
+      />
+      
+      <StateCard 
+        icon="📝"
+        title="Quiero planificar"
+        subtitle="Ver opciones y decidir"
+        onClick={() => navigate('/home/overview')}
+      />
+    </div>
+  );
+}
+Pantalla de tarea sugerida
+
+// Componente: TaskSuggestion.tsx
+
+function TaskSuggestion() {
+  const { recommendation, userState } = useLocation().state;
+  const [taskStarted, setTaskStarted] = useState(false);
+  const [timer, setTimer] = useState<number>(0);
+  
+  const handleStart = async () => {
+    // Registrar inicio de actividad
+    const activityLog: ActivityLog = {
+      id: generateId(),
+      userId: currentUser.id,
+      taskId: recommendation.id,
+      startTime: new Date(),
+      startEmotionalState: await captureEmotionalState(),
+      triggeredBy: 'system_suggestion',
+      routeUsed: userState.emotionalState,
+      completed: false,
+    };
+    
+    await saveActivityLog(activityLog);
+    
+    setTaskStarted(true);
+    startTimer(recommendation.estimatedMinutes);
+  };
+  
+  const handleComplete = async () => {
+    // Registrar finalización
+    const endState = await captureEmotionalState();
+    
+    await updateActivityLog({
+      completed: true,
+      endTime: new Date(),
+      actualMinutes: timer,
+      endEmotionalState: endState,
+    });
+    
+    // Mostrar feedback
+    navigate('/home/task-feedback', { state: { activityLog } });
+  };
+  
+  return (
+    <div className="task-suggestion">
+      {/* Mensaje personalizado según estrategia TCC */}
+      <TCCMessage strategy={recommendation.strategy} />
+      
+      <TaskCard task={recommendation} />
+      
+      {/* Si es estrategia de perfeccionismo */}
+      {recommendation.strategy === 'challenge_perfectionism' && (
+        <IntensitySelector 
+          levels={recommendation.intensityLevels}
+          defaultLevel="basic"
+          emphasizeBasic={true}
+        />
+      )}
+      
+      {!taskStarted ? (
+        <>
+          <Button onClick={handleStart}>Empezar</Button>
+          <Button variant="secondary" onClick={askForAlternative}>
+            Dame otra opción
+          </Button>
+          {userState.emotionalState === 'overwhelmed' && (
+            <Button variant="text" onClick={requestSmallerTask}>
+              Necesito algo más pequeño
+            </Button>
+          )}
+        </>
+      ) : (
+        <>
+          <Timer minutes={timer} />
+          <Checklist items={recommendation.steps} />
+          <Button onClick={handleComplete}>¡Hecho!</Button>
+        </>
+      )}
+    </div>
+  );
+}
+
+Pantalla de feedback post-tarea
+// Componente: TaskFeedback.tsx
+
+function TaskFeedback() {
+  const { activityLog } = useLocation().state;
+  
+  const handleFeedback = async (feedback: FeedbackData) => {
+    // Actualizar log con satisfacción y estado final
+    await updateActivityLog({
+      ...activityLog,
+      satisfactionRating: feedback.satisfaction,
+      endEnergyLevel: feedback.energyLevel,
+    });
+    
+    // Actualizar patrones del usuario
+    await updateUserPatterns(activityLog, feedback);
+    
+    // Preguntar si quiere hacer otra tarea
+    showNextActionPrompt();
+  };
+  
+  return (
+    <div className="task-feedback">
+      <SuccessAnimation />
+      
+      <h2>✨ ¡Lo hiciste!</h2>
+      
+      <p>Completaste: {activityLog.task.title}</p>
+      <p>en {activityLog.actualMinutes} minutos</p>
+      
+      <MoodComparison 
+        before={activityLog.startEmotionalState}
+        after={activityLog.endEmotionalState}
+      />
+      
+      <FeedbackForm onSubmit={handleFeedback} />
+      
+      <StreakIndicator currentStreak={currentStreak} />
+    </div>
+  );
+}
+APRENDIZAJE CONTINUO DEL SISTEMA
+
+/**
+ * Actualiza los patrones del usuario después de cada actividad
+ */
+async function updateUserPatterns(
+  activityLog: ActivityLog,
+  feedback: FeedbackData
+) {
+  const patterns = await getUserPatterns(activityLog.userId);
+  
+  // 1. Detectar ventanas de activación óptimas
+  const hour = activityLog.startTime.getHours();
+  const timeOfDay = getTimeOfDay(hour);
+  
+  if (activityLog.completed && feedback.satisfaction >= 4) {
+    patterns.successfulTimeSlots = patterns.successfulTimeSlots || {};
+    patterns.successfulTimeSlots[timeOfDay] = 
+      (patterns.successfulTimeSlots[timeOfDay] || 0) + 1;
+  }
+  
+  // 2. Actualizar tareas de alto impacto
+  if (feedback.moodImprovement > 0) {
+    const taskPattern = patterns.highImpactTasks.find(
+      t => t.taskId === activityLog.taskId
+    );
+    
+    if (taskPattern) {
+      // Actualizar promedio móvil
+      taskPattern.averageMoodImprovement = 
+        (taskPattern.averageMoodImprovement * 0.8) + (feedback.moodImprovement * 0.2);
+    } else {
+      patterns.highImpactTasks.push({
+        taskId: activityLog.taskId,
+        averageMoodImprovement: feedback.moodImprovement,
+        completionRate: 1.0,
+      });
+    }
+  }
+  
+  // 3. Detectar duración preferida
+  if (activityLog.completed) {
+    patterns.taskDurations = patterns.taskDurations || [];
+    patterns.taskDurations.push(activityLog.actualMinutes);
+    
+    // Calcular mediana de las últimas 10 tareas
+    if (patterns.taskDurations.length > 10) {
+      patterns.preferredTaskDuration = median(patterns.taskDurations.slice(-10));
+    }
+  }
+  
+  // 4. Actualizar racha
+  const today = new Date().toDateString();
+  const lastActivity = patterns.lastActivityDate?.toDateString();
+  
+  if (lastActivity === today) {
+    // Mismo día, no cambiar racha
+  } else if (wasYesterday(patterns.lastActivityDate)) {
+    patterns.currentStreak += 1;
+    patterns.longestStreak = Math.max(patterns.currentStreak, patterns.longestStreak);
+  } else {
+    patterns.currentStreak = 1; // Reset
+  }
+  
+  patterns.lastActivityDate = new Date();
+  
+  await saveUserPatterns(patterns);
+}
+
+BIBLIOTECA DE TAREAS PREDEFINIDAS
+// tasks-library.ts
+
+export const TASKS_LIBRARY: Task[] = [
+  // ========= MICRO-TAREAS (para estado "overwhelmed") =========
+  {
+    id: 'micro_pickup_3_objects',
+    category: 'organizing',
+    title: 'Recoge 3 objetos',
+    description: 'Encuentra 3 objetos que estén fuera de su sitio y colócalos donde van',
+    estimatedMinutes: 2,
+    effortLevel: 'micro',
+    impactLevel: 'low',
+    isMicroTask: true,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'micro_pickup_1_object',
+    category: 'organizing',
+    title: 'Recoge 1 objeto',
+    description: 'Encuentra 1 objeto que esté fuera de su sitio y colócalo donde va',
+    estimatedMinutes: 1,
+    effortLevel: 'micro',
+    impactLevel: 'low',
+    isMicroTask: true,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'micro_empty_one_trash',
+    category: 'cleaning',
+    title: 'Vacía una papelera',
+    description: 'Elige una papelera de la casa y vacíala',
+    estimatedMinutes: 2,
+    effortLevel: 'micro',
+    impactLevel: 'low',
+    isMicroTask: true,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'micro_clear_counter_spot',
+    category: 'organizing',
+    room: 'kitchen',
+    title: 'Despeja un espacio de encimera',
+    description: 'Elige 30cm de encimera y deja esa zona completamente despejada',
+    estimatedMinutes: 3,
+    effortLevel: 'micro',
+    impactLevel: 'medium',
+    isMicroTask: true,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  // ========= TAREAS DE BAJO ESFUERZO =========
+  {
+    id: 'low_make_bed',
+    category: 'organizing',
+    room: 'bedroom',
+    title: 'Hacer la cama',
+    description: 'Estira las sábanas y coloca la almohada',
+    estimatedMinutes: 3,
+    effortLevel: 'low',
+    impactLevel: 'high', // ¡Gran impacto visual!
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'low_wipe_kitchen_counter',
+    category: 'cleaning',
+    room: 'kitchen',
+    title: 'Pasar bayeta a encimera',
+    description: 'Limpia la encimera de la cocina con una bayeta',
+    estimatedMinutes: 5,
+    effortLevel: 'low',
+    impactLevel: 'medium',
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'low_wash_visible_dishes',
+    category: 'cleaning',
+    room: 'kitchen',
+    title: 'Lavar platos visibles',
+    description: 'Lava los platos que estén a la vista en la cocina',
+    estimatedMinutes: 10,
+    effortLevel: 'low',
+    impactLevel: 'high',
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  // ========= TAREAS SIN MOVIMIENTO (para baja energía) =========
+  {
+    id: 'nomove_shopping_list',
+    category: 'shopping',
+    title: 'Hacer lista de compra',
+    description: 'Revisa mentalmente qué necesitas y añádelo a la lista',
+    estimatedMinutes: 10,
+    effortLevel: 'low',
+    impactLevel: 'medium',
+    isMicroTask: false,
+    requiresDecisions: true,
+    requiresMovement: false, // ¡Desde el sofá!
+  },
+  
+  {
+    id: 'nomove_meal_planning',
+    category: 'organizing',
+    title: 'Planificar menú de mañana',
+    description: 'Decide qué vas a comer mañana',
+    estimatedMinutes: 5,
+    effortLevel: 'low',
+    impactLevel: 'low',
+    isMicroTask: false,
+    requiresDecisions: true,
+    requiresMovement: false,
+  },
+  
+  // ========= TAREAS CON NIVELES DE INTENSIDAD =========
+  {
+    id: 'multi_clean_bathroom',
+    category: 'cleaning',
+    room: 'bathroom',
+    title: 'Limpiar baño',
+    description: 'Limpieza del baño',
+    estimatedMinutes: 15, // nivel estándar
+    effortLevel: 'medium',
+    impactLevel: 'high',
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+    intensityLevels: {
+      basic: {
+        description: 'Solo WC y lavabo',
+        minutes: 5,
+      },
+      standard: {
+        description: 'WC, lavabo y ducha',
+        minutes: 15,
+      },
+      deep: {
+        description: 'Todo + azulejos y suelo',
+        minutes: 30,
+      },
+    },
+  },
+  
+  {
+    id: 'multi_clean_kitchen',
+    category: 'cleaning',
+    room: 'kitchen',
+    title: 'Limpiar cocina',
+    description: 'Limpieza de cocina',
+    estimatedMinutes: 15,
+    effortLevel: 'medium',
+    impactLevel: 'high',
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+    intensityLevels: {
+      basic: {
+        description: 'Recoger encimera + fregar platos',
+        minutes: 10,
+      },
+      standard: {
+        description: 'Básico + pasar bayeta + basura',
+        minutes: 20,
+      },
+      deep: {
+        description: 'Todo + electrodomésticos + suelo',
+        minutes: 40,
+      },
+    },
+  },
+  
+  // ========= TAREAS DE ALTO IMPACTO (para energía alta) =========
+  {
+    id: 'high_vacuum_home',
+    category: 'cleaning',
+    title: 'Aspirar la casa',
+    description: 'Pasar aspiradora por todas las habitaciones',
+    estimatedMinutes: 25,
+    effortLevel: 'medium',
+    impactLevel: 'high',
+    isMicroTask: false,
+    requiresDecisions: false,
+    requiresMovement: true,
+  },
+  
+  {
+    id: 'high_laundry_cycle',
+    category: 'maintenance',
+    title: 'Hacer una colada completa',
+    description: 'Lavar, tender y recoger ropa',
+    estimatedMinutes: 90, // tiempo total distribuido
+    effortLevel: 'high',
+    impactLevel: 'high',
+    isMicroTask: false,
+    requiresDecisions: true,
+    requiresMovement: true,
+  },
+];
+
+GENERACIÓN DINÁMICA DE TAREAS
+Algunas tareas se generan en tiempo real según el estado del hogar:
+
+/**
+ * Genera tareas dinámicas basadas en el estado actual
+ */
+function generateDynamicTasks(homeConfig: HomeConfig): Task[] {
+  const dynamicTasks: Task[] = [];
+  
+  // Para cada habitación que necesita atención
+  homeConfig.rooms.forEach(room => {
+    const daysSinceClean = room.lastCleaned 
+      ? daysSince(room.lastCleaned) 
+      : 999;
+    
+    if (daysSinceClean > 3) {
+      // Generar micro-tarea específica para esa habitación
+      dynamicTasks.push({
+        id: `dynamic_tidy_${room.id}`,
+        category: 'organizing',
+        room: room.id as any,
+        title: `Recoger ${room.name}`,
+        description: `Dedica 10 minutos a recoger ${room.name}`,
+        estimatedMinutes: 10,
+        effortLevel: 'low',
+        impactLevel: room.priority === 'high' ? 'high' : 'medium',
+        isMicroTask: false,
+        requiresDecisions: false,
+        requiresMovement: true,
+      });
+    }
+  });
+  
+  return dynamicTasks;
+}
+
+INTEGRACIÓN: LISTA DE COMPRAS INTELIGENTE
+
+/**
+ * Sugerencias inteligentes de compras
+ */
+class ShoppingListEngine {
+  
+  async generateSuggestions(
+    userId: string,
+    shoppingList: ShoppingList
+  ): Promise<string[]> {
+    
+    const suggestions: string[] = [];
+    
+    // Iterar sobre items frecuentes
+    shoppingList.frequentItems.forEach(item => {
+      const daysSinceLast = item.lastPurchased 
+        ? daysSince(item.lastPurchased)
+        : 999;
+      
+      // Si han pasado los días promedio ± 2 días
+      if (daysSinceLast >= item.averageDaysBetweenPurchases - 2) {
+        
+        // Solo sugerir si NO está ya en la lista
+        const alreadyInList = shoppingList.items.some(
+          i => i.name.toLowerCase() === item.name.toLowerCase()
+        );
+        
+        if (!alreadyInList) {
+          suggestions.push(item.name);
+        }
+      }
+    });
+    
+    // Básicos (si no están en lista ni en historial reciente)
+    const essentials = ['leche', 'pan', 'huevos', 'agua'];
+    essentials.forEach(essential => {
+      const inList = shoppingList.items.some(
+        i => i.name.toLowerCase().includes(essential)
+      );
+      const inSuggestions = suggestions.some(
+        s => s.toLowerCase().includes(essential)
+      );
+      
+      if (!inList && !inSuggestions) {
+        // Verificar si fue comprado recientemente
+        const recentPurchase = await checkRecentPurchase(userId, essential);
+        if (!recentPurchase) {
+          suggestions.push(essential);
+        }
+      }
+    });
+    
+    return suggestions;
+  }
+}
+
+SISTEMA DE PUNTOS SEMANAL
+
+
+/**
+ * Calcula y asigna puntos por actividades
+ */
+function calculateTaskPoints(task: Task, intensityChosen?: string): number {
+  let basePoints = 0;
+  
+  // Puntos base según esfuerzo
+  switch (task.effortLevel) {
+    case 'micro': basePoints = 1; break;
+    case 'low': basePoints = 2; break;
+    case 'medium': basePoints = 3; break;
+    case 'high': basePoints = 5; break;
+  }
+  
+  // Ajustar por intensidad elegida
+  if (task.intensityLevels && intensityChosen) {
+    switch (intensityChosen) {
+      case 'basic': basePoints *= 0.7; break;
+      case 'standard': basePoints *= 1.0; break;
+      case 'deep': basePoints *= 1.5; break;
+    }
+  }
+  
+  // Bonus por impacto
+  if (task.impactLevel === 'high') {
+    basePoints += 1;
+  }
+  
+  return Math.round(basePoints);
+}
+
+/**
+ * Actualiza puntos de la semana
+ */
+async function updateWeeklyPoints(
+  userId: string,
+  taskCompleted: Task,
+  intensityChosen?: string
+) {
+  const homeConfig = await getHomeConfig(userId);
+  
+  const points = calculateTaskPoints(taskCompleted, intensityChosen);
+  
+  homeConfig.currentWeekPoints += points;
+  
+  // Actualizar puntos de la habitación si aplica
+  if (taskCompleted.room) {
+    const room = homeConfig.rooms.find(r => r.id === taskCompleted.room);
+    if (room) {
+      room.maintenancePoints += points;
+      room.lastCleaned = new Date();
+    }
+  }
+  
+  await saveHomeConfig(homeConfig);
+  
+  // Verificar si alcanzó meta semanal
+  if (homeConfig.currentWeekPoints >= homeConfig.weeklyPointsGoal) {
+    await showWeeklyGoalAchievement(userId);
+  }
+}
+
+/**
+ * Reset semanal (ejecutar con cron job)
+ */
+async function resetWeeklyPoints(userId: string) {
+  const homeConfig = await getHomeConfig(userId);
+  
+  // Guardar historial
+  await saveWeeklyHistory({
+    userId,
+    weekStart: getWeekStart(),
+    pointsAchieved: homeConfig.currentWeekPoints,
+    goalMet: homeConfig.currentWeekPoints >= homeConfig.weeklyPointsGoal,
+  });
+  
+  // Reset
+  homeConfig.currentWeekPoints = 0;
+  await saveHomeConfig(homeConfig);
+}
+```
+
+---
+
+## ESTRUCTURA DE ARCHIVOS DEL PROYECTO
+```
+/src
+  /features
+    /home-management
+      /components
+        - HomeManagementEntry.tsx
+        - TaskSuggestion.tsx
+        - TaskFeedback.tsx
+        - StateCard.tsx
+        - TaskCard.tsx
+        - MoodComparison.tsx
+        - IntensitySelector.tsx
+        
+      /engine
+        - TaskRecommendationEngine.ts
+        - ShoppingListEngine.ts
+        - PatternLearning.ts
+        
+      /data
+        - tasks-library.ts
+        - task-types.ts
+        
+      /hooks
+        - useTaskRecommendation.ts
+        - useActivityTracking.ts
+        - useUserPatterns.ts
+        
+      /utils
+        - scoring.ts
+        - time-utils.ts
+        
+  /db
+    /schemas
+      - user-state.schema.ts
+      - activity-log.schema.ts
+      - user-patterns.schema.ts
+      - home-config.schema.ts
+      - shopping-list.schema.ts
+
+PRÓXIMOS PASOS DE IMPLEMENTACIÓN
+Fase 1: MVP (Mínimo Viable)
+
+✅ Modelo de datos (definir schemas en Dexie)
+✅ Biblioteca de 15-20 tareas básicas
+✅ Pantalla de entrada con 4 estados
+✅ Motor de recomendación simplificado (solo filtros, sin scoring complejo)
+✅ Flujo completo de una tarea (sugerencia → ejecución → feedback)
+
+Fase 2: Aprendizaje
+
+Sistema de registro y análisis de patrones
+Scoring de tareas con historial
+Sugerencias inteligentes de lista de compras
+
+Fase 3: Gamificación
+
+Sistema de puntos semanales
+Vista de habitaciones
+Indicadores de racha
+
+
+🏗️ ARQUITECTURA DE LA APLICACIÓN
+Estructura de Navegación Principal:
+
+HomeFlow
+├─ 🎯 Inicio / "¿Qué necesitas hoy?"
+│   ├─ Estoy abrumado → Micro-tarea inmediata
+│   ├─ Tengo energía → Tarea de impacto
+│   ├─ Me cuesta empezar → Guía de barreras
+│   └─ Quiero planificar → Vista general
+│
+├─ 🏠 Mi Hogar
+│   ├─ Vista general (estado habitaciones)
+│   ├─ Por habitación (tareas específicas)
+│   └─ Configuración del hogar
+│
+├─ 📋 Rutinas (V2)
+│   ├─ Rutinas predefinidas
+│   ├─ Mis rutinas personalizadas
+│   └─ Construir rutina (asistente)
+│
+├─ 🛒 Lista de Compras (V2)
+│   ├─ Mi lista actual
+│   ├─ Sugerencias inteligentes
+│   └─ Historial frecuente
+│
+├─ 📊 Mi Progreso
+│   ├─ Racha actual
+│   ├─ Puntos semanales
+│   ├─ Insights (mejor hora, tareas favoritas)
+│   └─ Resumen semanal
+│
+└─ 💡 Aprende (DIFERENCIADOR CLAVE)
+    ├─ ¿Qué es la activación conductual?
+    ├─ Por qué las micro-tareas funcionan
+    ├─ Cómo crear hábitos sostenibles
+    ├─ Lidiar con la procrastinación
+    └─ Mantener la motivación
+
+🎓 SECCIÓN "APRENDE" (Educación TCC)
+Esta es tu ventaja competitiva única.
+Ejemplos de contenido educativo:
+Artículo 1: "Por qué 'ordenar toda la casa' no funciona"
+
+Has intentado mil veces "limpiar toda la casa este fin de semana".
+¿Y qué pasa? 
+
+- Sábado: "Voy a hacerlo todo"
+- Domingo: "Bueno, empiezo por la habitación"
+- Lunes: "No hice nada y me siento peor"
+
+¿Por qué falla esto?
+
+Tu cerebro ve "ordenar toda la casa" como una amenaza.
+Es demasiado grande, demasiado vago, demasiado abrumador.
+
+La ciencia dice: Tareas pequeñas y específicas
+→ Menos resistencia
+→ Más probabilidad de empezar
+→ Más probabilidad de continuar
+
+HomeFlow usa este principio:
+No te dice "limpia la cocina"
+Te dice "pasa una bayeta a la encimera (3 min)"
+
+[Siguiente artículo: Cómo tu ánimo mejora con acción]
+
+Artículo 2: "No esperes a 'sentirte motivado'"
+
+El mito: "Cuando esté motivado, limpiaré"
+
+La realidad: No funciona así.
+
+Los psicólogos descubrieron algo fascinante:
+
+Ánimo → Acción (❌ No siempre)
+Acción → Ánimo (✅ Casi siempre)
+
+Cuando haces algo pequeño, tu cerebro dice:
+"Oh, estoy haciendo cosas, debo estar bien"
+
+Y tu ánimo mejora.
+
+HomeFlow te pide que notes cómo te sientes
+antes y después de cada tarea.
+
+Verás el patrón tú mismo.
+
+[Prueba ahora: Haz una micro-tarea]
+
+🎨 IDENTIDAD VISUAL
+Paleta de Colores:
+Primarios:
+
+Púrpura suave (#8B7FC8) - Calma, introspección
+Verde sage (#A8C686) - Crecimiento, renovación
+Azul empático (#7EB5D6) - Confianza, estabilidad
+
+Secundarios:
+
+Amarillo cálido (#F4D35E) - Energía positiva
+Coral suave (#FA8F85) - Acción, movimiento
+
+Neutros:
+
+Grises cálidos para texto
+Blancos cremosos para fondos
+
+Tono de Voz:
+
+🫂 Empático: "Te entiendo, muchos se sienten así"
+🎓 Educativo: "¿Sabías que...?"
+💪 Empoderante: "Tú puedes hacerlo, paso a paso"
+🙅 NO condescendiente: Nunca "deberías", "tienes que"
+🙅 NO presionante: Nunca culpa o juicio

@@ -14,6 +14,9 @@ import { OnboardingComplete } from './features/onboarding/components/OnboardingC
 // Home
 import { HomePage } from './features/home/components/HomePage';
 
+// Tasks
+import { TaskExecutionScreen } from './features/tasks/components/TaskExecutionScreen';
+
 // Placeholder para learn (temporal)
 const LearnPage = () => (
   <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sage-50 flex items-center justify-center p-4">
@@ -45,6 +48,7 @@ function App() {
         
         {/* Main App */}
         <Route path="/home" element={<HomePage />} />
+        <Route path="/tasks/:taskId" element={<TaskExecutionScreen />} />
         <Route path="/learn" element={<LearnPage />} />
         <Route path="/learn/:articleId" element={<LearnPage />} />
         
