@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Timer, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Timer, ArrowLeft, ChevronDown, Loader2 } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
+import { SessionClosure } from './SessionClosure';
+import { useAdaptiveEngine } from '../hooks/useAdaptiveEngine';
+import { useUserId } from '../../../shared/hooks/useUserId';
 import type { PostTaskFeeling } from '../types';
 
-// Micro-tareas predefinidas para estado abrumado
-const microTasks = [
+// Micro-tareas de fallback (solo se usan si la DB está vacía)
+const fallbackMicroTasks = [
   {
     id: 'micro-1',
     title: 'Recoge 3 objetos que estén fuera de su sitio y colócalos donde van',
@@ -33,16 +36,38 @@ const microTasks = [
   },
 ];
 
-type Phase = 'validation' | 'task' | 'timer' | 'feedback' | 'continue';
+type Phase = 'validation' | 'loading' | 'task' | 'timer' | 'feedback' | 'continue' | 'closure';
 
 export const RouteOverwhelmed: React.FC = () => {
   const navigate = useNavigate();
+  const userId = useUserId();
+  const { getMicroTask, microTask, completeTask, loading: engineLoading } = useAdaptiveEngine(userId);
+  
   const [phase, setPhase] = useState<Phase>('validation');
-  const [currentTask, setCurrentTask] = useState(microTasks[Math.floor(Math.random() * microTasks.length)]);
+  const [fallbackTask, setFallbackTask] = useState(fallbackMicroTasks[Math.floor(Math.random() * fallbackMicroTasks.length)]);
   const [isSmaller, setIsSmaller] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutos
   const [timerActive, setTimerActive] = useState(false);
   const [feeling, setFeeling] = useState<PostTaskFeeling | null>(null);
+
+  // Obtener tarea del motor cuando avanza
+  const loadMicroTask = async () => {
+    setPhase('loading');
+    const task = await getMicroTask();
+    if (!task) {
+      // Usar fallback si no hay tareas en DB
+      setFallbackTask(fallbackMicroTasks[Math.floor(Math.random() * fallbackMicroTasks.length)]);
+    }
+    setPhase('task');
+  };
+
+  // Datos de la tarea actual (del motor o fallback)
+  const currentTask = microTask ? {
+    id: microTask.id,
+    title: microTask.title,
+    smallerTitle: microTask.intensityLevels?.basic?.description || microTask.description || 'Hazlo un poco más pequeño',
+    durationMinutes: microTask.intensityLevels?.basic?.minutes || 2,
+  } : fallbackTask;
 
   // Timer logic
   useEffect(() => {
@@ -83,21 +108,30 @@ export const RouteOverwhelmed: React.FC = () => {
     setPhase('feedback');
   };
 
-  const handleFeelingSelect = (selectedFeeling: PostTaskFeeling) => {
+  const handleFeelingSelect = async (selectedFeeling: PostTaskFeeling) => {
     setFeeling(selectedFeeling);
+    
+    // Guardar completación si tenemos tarea del motor
+    if (microTask) {
+      const actualMinutes = isSmaller 
+        ? (currentTask.durationMinutes / 2) 
+        : currentTask.durationMinutes;
+      // Micro-tareas dan 5 puntos base + 1 por minuto
+      const points = 5 + actualMinutes;
+      await completeTask(microTask, selectedFeeling, actualMinutes, points);
+    }
+    
     setPhase('continue');
   };
 
-  const handleContinue = (wantMore: boolean) => {
+  const handleContinue = async (wantMore: boolean) => {
     if (wantMore) {
-      // Seleccionar otra micro-tarea diferente
-      const otherTasks = microTasks.filter(t => t.id !== currentTask.id);
-      setCurrentTask(otherTasks[Math.floor(Math.random() * otherTasks.length)]);
+      // Obtener otra micro-tarea del motor
+      await loadMicroTask();
       setIsSmaller(false);
       setTimeLeft(120);
-      setPhase('task');
     } else {
-      navigate('/');
+      setPhase('closure');
     }
   };
 
@@ -142,11 +176,25 @@ export const RouteOverwhelmed: React.FC = () => {
                 Sin presión, sin listas, solo una cosa.
               </p>
               <Button
-                onClick={() => setPhase('task')}
+                onClick={() => loadMicroTask()}
                 className="text-lg px-8 py-4"
               >
                 Mostrarme qué hacer
               </Button>
+            </motion.div>
+          )}
+
+          {/* PHASE: Loading */}
+          {phase === 'loading' && (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-20"
+            >
+              <Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
+              <p className="text-gray-500">Buscando algo sencillo para ti...</p>
             </motion.div>
           )}
 
@@ -357,7 +405,7 @@ export const RouteOverwhelmed: React.FC = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleContinue(false)}
+                  onClick={() => setPhase('closure')}
                   className="w-full"
                 >
                   No, suficiente por hoy
@@ -378,6 +426,11 @@ export const RouteOverwhelmed: React.FC = () => {
                 </motion.div>
               )}
             </motion.div>
+          )}
+
+          {/* PHASE: Closure - Cierre de sesión */}
+          {phase === 'closure' && (
+            <SessionClosure onHome={() => navigate('/')} />
           )}
         </AnimatePresence>
       </div>

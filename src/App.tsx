@@ -19,7 +19,10 @@ import { RouteHaveEnergy } from './features/home/components/RouteHaveEnergy';
 import { RouteHardToStart } from './features/home/components/RouteHardToStart';
 import { RoutePlanning } from './features/home/components/RoutePlanning';
 import { RouteShopping } from './features/home/components/RouteShopping';
+import { ProgressScreen } from './features/home/components/ProgressScreen';
 import { HomePage } from './features/home/components/HomePage';
+import { RoomOverviewScreen } from './features/home/components/RoomOverviewScreen';
+import { RoomDetailScreen } from './features/home/components/RoomDetailScreen';
 
 // Tasks
 import { TaskExecutionScreen } from './features/tasks/components/TaskExecutionScreen';
@@ -57,11 +60,15 @@ function App() {
         <Route path="/flow/planning" element={<ProtectedRoute><RoutePlanning /></ProtectedRoute>} />
         <Route path="/flow/shopping" element={<ProtectedRoute><RouteShopping /></ProtectedRoute>} />
         
+        {/* Progress View */}
+        <Route path="/progress" element={<ProtectedRoute><ProgressScreen /></ProtectedRoute>} />
+        
+        {/* Room Views - Pantalla 9 y 11 */}
+        <Route path="/rooms" element={<ProtectedRoute><RoomOverviewScreen /></ProtectedRoute>} />
+        <Route path="/rooms/:roomId" element={<ProtectedRoute><RoomDetailScreen /></ProtectedRoute>} />
+        
         {/* Legacy Home - Still accessible */}
         <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-        
-        {/* Progress View */}
-        <Route path="/progress" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
         
         {/* Tasks */}
         <Route path="/tasks/:taskId" element={<ProtectedRoute><TaskExecutionScreen /></ProtectedRoute>} />

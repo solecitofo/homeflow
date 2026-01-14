@@ -92,7 +92,7 @@ export const useTaskExecution = (task: Task): UseTaskExecutionReturn => {
     if (phase === 'mood-before' && moodBefore !== null) {
       const createLog = async () => {
         const logId = await createActivityLog(
-          'default_user',
+          'default-user',
           task.id,
           moodBefore,
           dailyEmotionalState || 'ok'

@@ -79,3 +79,92 @@ export function getEmotionalLabel(value: number): string {
       return 'Desconocido';
   }
 }
+
+// ============================================================================
+// SISTEMA DE PUNTOS AVANZADO
+// ============================================================================
+
+/**
+ * Calcula puntos con intensidad elegida (para tareas con niveles)
+ */
+export function calculatePointsWithIntensity(
+  task: Task,
+  intensityUsed?: 'basic' | 'standard' | 'deep'
+): number {
+  let basePoints = 0;
+  
+  switch (task.effortLevel) {
+    case 'micro': basePoints = 5; break;
+    case 'low': basePoints = 10; break;
+    case 'medium': basePoints = 20; break;
+    case 'high': basePoints = 35; break;
+  }
+  
+  const impactMultiplier = {
+    low: 1,
+    medium: 1.3,
+    high: 1.6,
+  }[task.impactLevel];
+  
+  let intensityMultiplier = 1;
+  if (task.intensityLevels && intensityUsed) {
+    switch (intensityUsed) {
+      case 'basic': intensityMultiplier = 0.6; break;
+      case 'standard': intensityMultiplier = 1; break;
+      case 'deep': intensityMultiplier = 1.5; break;
+    }
+  }
+  
+  return Math.round(basePoints * impactMultiplier * intensityMultiplier);
+}
+
+/**
+ * Objetivo semanal de puntos según nivel de dificultad
+ */
+export const WEEKLY_GOALS = {
+  easy: 50,      // ~7 micro-tareas por semana
+  moderate: 100, // ~10-15 tareas mixtas
+  ambitious: 200 // ~25+ tareas o varias medias
+};
+
+/**
+ * Niveles de logro basados en puntos totales acumulados
+ */
+export const POINT_MILESTONES = [
+  { points: 50, badge: '🌱', title: 'Semilla', description: 'Primeros pasos' },
+  { points: 100, badge: '🌿', title: 'Brote', description: 'Creciendo fuerte' },
+  { points: 250, badge: '🌳', title: 'Árbol', description: 'Raíces firmes' },
+  { points: 500, badge: '🌲', title: 'Bosque', description: 'Imparable' },
+  { points: 1000, badge: '🏔️', title: 'Montaña', description: 'Maestro del hogar' },
+];
+
+/**
+ * Obtiene el nivel actual basado en puntos totales
+ */
+export function getCurrentLevel(totalPoints: number): typeof POINT_MILESTONES[0] | null {
+  const achieved = POINT_MILESTONES.filter(m => totalPoints >= m.points);
+  return achieved.length > 0 ? achieved[achieved.length - 1] : null;
+}
+
+/**
+ * Obtiene el próximo nivel a alcanzar
+ */
+export function getNextLevel(totalPoints: number): typeof POINT_MILESTONES[0] | null {
+  return POINT_MILESTONES.find(m => totalPoints < m.points) || null;
+}
+
+/**
+ * Calcula el porcentaje de progreso hacia el próximo nivel
+ */
+export function getProgressToNextLevel(totalPoints: number): number {
+  const current = getCurrentLevel(totalPoints);
+  const next = getNextLevel(totalPoints);
+  
+  if (!next) return 100;
+  
+  const currentThreshold = current?.points || 0;
+  const pointsInLevel = totalPoints - currentThreshold;
+  const pointsNeeded = next.points - currentThreshold;
+  
+  return Math.round((pointsInLevel / pointsNeeded) * 100);
+}

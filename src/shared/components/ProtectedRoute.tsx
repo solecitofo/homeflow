@@ -12,7 +12,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   useEffect(() => {
     const checkOnboarding = async () => {
-      const completed = await hasCompletedOnboarding('default_user');
+      const completed = await hasCompletedOnboarding('default-user');
       setHasOnboarded(completed);
       setLoading(false);
     };

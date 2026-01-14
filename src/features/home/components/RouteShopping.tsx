@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Check, Trash2, ShoppingCart, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Trash2, ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
+import { useShoppingList } from '../hooks/useShoppingList';
+import type { ShoppingItem } from '../../../db/database';
+
+// TODO: Obtener userId del store/auth
+const TEMP_USER_ID = 'default-user';
 
 // Categorías de compra con items sugeridos
-const shoppingCategories = [
+const shoppingCategories: {
+  id: ShoppingItem['category'];
+  name: string;
+  icon: string;
+  suggestions: string[];
+}[] = [
   {
     id: 'fresh',
     name: 'Frescos',
@@ -44,48 +54,61 @@ const shoppingCategories = [
   },
 ];
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  category: string;
-  checked: boolean;
-}
-
 type Phase = 'method' | 'quick' | 'category' | 'list' | 'done';
 
 export const RouteShopping: React.FC = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>('method');
-  const [items, setItems] = useState<ShoppingItem[]>([]);
   const [newItemText, setNewItemText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<ShoppingItem['category'] | null>(null);
 
-  const addItem = (name: string, category: string = 'other') => {
+  // Hook de persistencia
+  const {
+    list,
+    itemsByCategory,
+    suggestions,
+    stats,
+    loading,
+    error,
+    addItem: addItemToDb,
+    toggleItem: toggleItemDb,
+    removeItem: removeItemDb,
+    clearChecked,
+    refresh,
+  } = useShoppingList(TEMP_USER_ID);
+
+  const items: ShoppingItem[] = list?.items || [];
+
+  const addItem = async (name: string, category: ShoppingItem['category'] = 'other') => {
     if (!name.trim()) return;
-    setItems(prev => [
-      ...prev,
-      { id: Date.now().toString(), name: name.trim(), category, checked: false }
-    ]);
+    await addItemToDb(name.trim(), category);
     setNewItemText('');
   };
 
-  const toggleItem = (id: string) => {
-    setItems(prev => prev.map(item => 
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ));
+  const toggleItem = async (id: string) => {
+    await toggleItemDb(id);
   };
 
-  const removeItem = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+  const removeItem = async (id: string) => {
+    await removeItemDb(id);
   };
 
-  const handleQuickAdd = (suggestion: string, category: string) => {
+  const handleQuickAdd = async (suggestion: string, category: ShoppingItem['category']) => {
     if (!items.some(item => item.name.toLowerCase() === suggestion.toLowerCase())) {
-      addItem(suggestion, category);
+      await addItem(suggestion, category);
     }
   };
 
-  const checkedCount = items.filter(i => i.checked).length;
+  const checkedCount = stats.checked;
+
+  // Mostrar loader mientras carga
+  if (loading && !list) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-primary-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-primary-50 p-4">

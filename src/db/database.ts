@@ -81,6 +81,51 @@ export interface UserProgress {
 }
 
 // ============================================================================
+// SHOPPING LIST
+// ============================================================================
+
+export interface ShoppingItem {
+  id: string;
+  name: string;
+  category: 'fresh' | 'pantry' | 'frozen' | 'cleaning' | 'hygiene' | 'other';
+  addedAt: Date;
+  addedBy: 'user' | 'suggestion';
+  checked: boolean;
+  quantity?: number;
+  notes?: string;
+}
+
+export interface ShoppingList {
+  userId: string;
+  items: ShoppingItem[];
+  lastModified: Date;
+}
+
+export interface FrequentItem {
+  userId: string;
+  name: string;
+  category: 'fresh' | 'pantry' | 'frozen' | 'cleaning' | 'hygiene' | 'other';
+  purchaseCount: number;
+  averageDaysBetweenPurchases: number;
+  lastPurchased?: Date;
+}
+
+// ============================================================================
+// USER PATTERNS (Aprendizaje del sistema)
+// ============================================================================
+
+export interface UserPatterns {
+  userId: string;
+  bestTimeOfDay?: 'morning' | 'afternoon' | 'evening';
+  bestDayOfWeek?: string[];
+  preferredTaskDuration?: number;
+  successfulTimeSlots: Record<string, number>;
+  taskDurations: number[];
+  avoidsTasksWith?: string[];
+  totalPointsEarned: number;
+}
+
+// ============================================================================
 // BASE DE DATOS
 // ============================================================================
 
@@ -90,16 +135,32 @@ export class HomeFlowDatabase extends Dexie {
   tasks!: Table<Task, string>;
   activityLogs!: Table<ActivityLog, string>;
   userProgress!: Table<UserProgress, string>;
+  shoppingLists!: Table<ShoppingList, string>;
+  frequentItems!: Table<FrequentItem, [string, string]>;
+  userPatterns!: Table<UserPatterns, string>;
 
   constructor() {
     super('HomeFlowDB');
     
+    // Versión 1: Schema inicial
     this.version(1).stores({
       onboarding: 'userId, completedAt',
       rooms: 'id, userId, type, enabled',
       tasks: 'id, category, room, effortLevel, isMicroTask',
       activityLogs: 'id, userId, taskId, startTime, completed',
       userProgress: 'userId, lastActivityDate',
+    });
+    
+    // Versión 2: Añadir shopping y patterns
+    this.version(2).stores({
+      onboarding: 'userId, completedAt',
+      rooms: 'id, userId, type, enabled',
+      tasks: 'id, category, room, effortLevel, isMicroTask',
+      activityLogs: 'id, userId, taskId, startTime, completed',
+      userProgress: 'userId, lastActivityDate',
+      shoppingLists: 'userId, lastModified',
+      frequentItems: '[userId+name], userId, category, lastPurchased',
+      userPatterns: 'userId',
     });
   }
 }
@@ -110,7 +171,7 @@ export const db = new HomeFlowDatabase();
 // FUNCIONES DE UTILIDAD
 // ============================================================================
 
-export async function getOrCreateUser(userId: string = 'default_user'): Promise<UserProgress> {
+export async function getOrCreateUser(userId: string = 'default-user'): Promise<UserProgress> {
   let progress = await db.userProgress.get(userId);
   
   if (!progress) {

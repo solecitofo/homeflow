@@ -76,24 +76,24 @@ export const OnboardingComplete: React.FC = () => {
             className="space-y-3"
           >
             <button
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/flow/energy')}
               className="w-full bg-gradient-to-r from-primary-500 to-primary-600 
                        text-white py-4 rounded-xl font-semibold text-lg
                        hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]
                        transition-all duration-200 flex items-center justify-center gap-2"
             >
-              <Home size={20} />
-              Ir a Mi Hogar
+              <Sparkles size={20} />
+              Seguir haciendo tareas
             </button>
             
             <button
-              onClick={() => navigate('/learn')}
+              onClick={() => navigate('/')}
               className="w-full bg-white border-2 border-gray-300 text-gray-700 
                        py-3 rounded-xl font-semibold
                        hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
             >
-              <Sparkles size={18} />
-              Aprender más sobre esto
+              <Home size={18} />
+              Ir a Mi Hogar
             </button>
           </motion.div>
           

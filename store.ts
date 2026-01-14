@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { EmotionalState } from './features/onboarding/types';
-import { OnboardingData } from './features/onboarding/types';
+import type { EmotionalState, OnboardingData } from './src/db/database';
 
 interface AppState {
   // Usuario

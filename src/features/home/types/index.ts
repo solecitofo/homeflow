@@ -6,7 +6,8 @@ export type UserIntention =
   | 'need_planning'    // 📝 Necesito planificar/organizar
   | 'need_shopping'    // 🛒 Necesito hacer la compra
   | 'hard_to_start'    // 😓 Me cuesta ponerme en marcha
-  | 'see_progress';    // ✅ Quiero ver mi progreso
+  | 'see_progress'     // ✅ Quiero ver mi progreso
+  | 'see_home';        // 🏠 Ver estado de mi hogar
 
 export type Barrier = 
   | 'no_energy'        // 😴 No tengo energía
@@ -16,15 +17,18 @@ export type Barrier =
   | 'anxiety';         // 😰 Me da ansiedad empezar
 
 export type TimeAvailable = 
-  | '5-10'   // 5-10 minutos
-  | '15-20'  // 15-20 minutos
-  | '30+'    // 30+ minutos
-  | 'unsure'; // No estoy seguro/a
+  | '5min'   // 5-10 minutos
+  | '15min'  // 15-20 minutos
+  | '30min'  // 30+ minutos
+  | '1hour'; // 1 hora o más / No estoy seguro
 
 export type PostTaskFeeling = 
-  | 'better'  // Mejor
-  | 'same'    // Igual
-  | 'worse';  // Peor
+  | 'better'   // Mejor
+  | 'same'     // Igual
+  | 'worse'    // Peor
+  | 'tired'    // Cansado/a
+  | 'relieved' // Aliviado/a
+  | 'proud';   // Orgulloso/a
 
 export interface MicroTask {
   id: string;

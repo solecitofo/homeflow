@@ -39,13 +39,16 @@ export const ConfigurationSummary: React.FC = () => {
   const navigate = useNavigate();
   const { userId, onboardingData, setLoading } = useAppStore();
   
+  // Usar userId consistente
+  const effectiveUserId = userId || 'default-user';
+  
   const handleConfirm = async () => {
     try {
       setLoading(true);
       
       // Guardar configuración completa
       await saveOnboarding({
-        userId,
+        userId: effectiveUserId,
         emotionalState: onboardingData.emotionalState!,
         homeName: onboardingData.homeName || 'Mi hogar',
         bedroomsCount: onboardingData.bedroomsCount || 1,

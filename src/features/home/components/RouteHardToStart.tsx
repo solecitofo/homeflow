@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shuffle, Sofa, Lightbulb } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
+import { SessionClosure } from './SessionClosure';
 import type { Barrier } from '../types';
 
 interface BarrierOption {
@@ -40,7 +41,7 @@ const sofaTasks = [
   { icon: '💭', title: 'Decidir una cosa para donar', desc: 'Piensa en algo que no uses' },
 ];
 
-type Phase = 'barrier' | 'intervention';
+type Phase = 'barrier' | 'intervention' | 'closure';
 
 export const RouteHardToStart: React.FC = () => {
   const navigate = useNavigate();
@@ -306,7 +307,7 @@ export const RouteHardToStart: React.FC = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate('/')}
+                  onClick={() => setPhase('closure')}
                   className="w-full"
                 >
                   Mejor lo dejo para después
@@ -319,6 +320,10 @@ export const RouteHardToStart: React.FC = () => {
             </p>
           </motion.div>
         );
+  // Render cierre si corresponde
+  if (phase === 'closure') {
+    return <SessionClosure onHome={() => navigate('/')} />;
+  }
 
       default:
         return null;

@@ -2,6 +2,20 @@ import { db, type ActivityLog, type EmotionalState, generateId } from '../databa
 import { startOfDay, isSameDay } from '../../shared/utils/dateUtils';
 
 /**
+ * Convierte número (1-5) a estado emocional literal
+ */
+function numberToEmotionalState(num: number): 'very_bad' | 'bad' | 'neutral' | 'good' | 'very_good' {
+  switch (num) {
+    case 1: return 'very_bad';
+    case 2: return 'bad';
+    case 3: return 'neutral';
+    case 4: return 'good';
+    case 5: return 'very_good';
+    default: return 'neutral';
+  }
+}
+
+/**
  * Crea un nuevo log de actividad cuando el usuario empieza una tarea
  */
 export async function createActivityLog(
@@ -18,12 +32,25 @@ export async function createActivityLog(
     taskId,
     startTime: new Date(),
     completed: false,
-    emotionalStateBefore: emotionalStateBefore as 1 | 2 | 3 | 4 | 5,
+    emotionalStateBefore: numberToEmotionalState(emotionalStateBefore),
     routeUsed,
   };
 
   await db.activityLogs.add(log);
   return logId;
+}
+
+/**
+ * Convierte estado emocional literal a número
+ */
+function emotionalStateToNumber(state: 'very_bad' | 'bad' | 'neutral' | 'good' | 'very_good'): number {
+  switch (state) {
+    case 'very_bad': return 1;
+    case 'bad': return 2;
+    case 'neutral': return 3;
+    case 'good': return 4;
+    case 'very_good': return 5;
+  }
 }
 
 /**
@@ -39,12 +66,13 @@ export async function completeActivityLog(
     throw new Error(`Activity log ${logId} not found`);
   }
 
-  const moodImprovement = emotionalStateAfter - log.emotionalStateBefore;
+  const moodBefore = emotionalStateToNumber(log.emotionalStateBefore);
+  const moodImprovement = emotionalStateAfter - moodBefore;
 
   await db.activityLogs.update(logId, {
     completed: true,
     endTime: new Date(),
-    emotionalStateAfter: emotionalStateAfter as 1 | 2 | 3 | 4 | 5,
+    emotionalStateAfter: numberToEmotionalState(emotionalStateAfter),
     actualMinutes,
     moodImprovement,
   });

@@ -61,6 +61,14 @@ const stateOptions: StateOption[] = [
     route: '/progress',
     color: 'from-sage-100 to-sage-50 border-sage-200 hover:border-sage-400',
   },
+  {
+    icon: '🏠',
+    title: 'Ver mi hogar',
+    subtitle: 'Estado de cada habitación',
+    intention: 'see_home',
+    route: '/rooms',
+    color: 'from-indigo-100 to-indigo-50 border-indigo-200 hover:border-indigo-400',
+  },
 ];
 
 export const StateSelectionScreen: React.FC = () => {

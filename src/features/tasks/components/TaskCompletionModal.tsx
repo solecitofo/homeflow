@@ -36,7 +36,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
   // Load streak
   useEffect(() => {
     if (isOpen) {
-      calculateStreak('default_user').then(setStreak);
+      calculateStreak('default-user').then(setStreak);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }
@@ -67,7 +67,7 @@ export const TaskCompletionModal: React.FC<TaskCompletionModalProps> = ({
   const moodMessage = getMoodImprovementMessage();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md" closeOnBackdropClick={false}>
+    <Modal isOpen={isOpen} onClose={onClose} size="md" closeOnBackdrop={false}>
       <div className="relative">
         {/* Confetti effect placeholder - could add a library for this */}
         {showConfetti && (
