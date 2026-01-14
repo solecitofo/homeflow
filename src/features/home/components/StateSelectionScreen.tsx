@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import type { UserIntention } from '../types';
+import { ProgressSummary } from './ProgressSummary';
+import { CreateCustomTaskModal } from '../../tasks/components/CreateCustomTaskModal';
 
 interface StateOption {
   icon: string;
@@ -69,13 +72,36 @@ const stateOptions: StateOption[] = [
     route: '/rooms',
     color: 'from-indigo-100 to-indigo-50 border-indigo-200 hover:border-indigo-400',
   },
+  {
+    icon: '📚',
+    title: 'Aprender',
+    subtitle: 'Tips y estrategias TCC',
+    intention: 'learn',
+    route: '/learn',
+    color: 'from-pink-100 to-pink-50 border-pink-200 hover:border-pink-400',
+  },
+  {
+    icon: '⭐',
+    title: 'Mis Tareas',
+    subtitle: 'Gestionar tareas personalizadas',
+    intention: 'my_tasks',
+    route: '/my-tasks',
+    color: 'from-amber-100 to-amber-50 border-amber-200 hover:border-amber-400',
+  },
 ];
 
 export const StateSelectionScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
   const handleSelect = (option: StateOption) => {
     navigate(option.route);
+  };
+
+  const handleTaskCreated = (taskId: string) => {
+    setShowCreateTaskModal(false);
+    // Opcionalmente podríamos navegar a la tarea recién creada
+    // navigate(`/tasks/${taskId}`);
   };
 
   return (
@@ -85,7 +111,7 @@ export const StateSelectionScreen: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center pt-8 pb-8"
+          className="text-center pt-8 pb-6"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -112,6 +138,11 @@ export const StateSelectionScreen: React.FC = () => {
             Selecciona tu estado actual
           </motion.p>
         </motion.div>
+
+        {/* Progress Summary */}
+        <div className="mb-8">
+          <ProgressSummary />
+        </div>
 
         {/* State Options */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -155,6 +186,27 @@ export const StateSelectionScreen: React.FC = () => {
           Cada día es diferente. Tus tareas se adaptan a ti.
         </motion.p>
       </div>
+
+      {/* Floating Action Button */}
+      <motion.button
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.8, type: 'spring', stiffness: 260, damping: 20 }}
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setShowCreateTaskModal(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-50"
+        aria-label="Crear tarea personalizada"
+      >
+        <Plus className="w-6 h-6" />
+      </motion.button>
+
+      {/* Create Custom Task Modal */}
+      <CreateCustomTaskModal
+        isOpen={showCreateTaskModal}
+        onClose={() => setShowCreateTaskModal(false)}
+        onSuccess={handleTaskCreated}
+      />
     </div>
   );
 };

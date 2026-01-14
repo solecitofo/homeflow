@@ -49,6 +49,16 @@ export interface Task {
     standard: { description: string; minutes: number };
     deep: { description: string; minutes: number };
   };
+  // Campos para tareas personalizadas
+  isCustom?: boolean;
+  createdByUser?: string;
+  baseTaskId?: string;
+  customMetadata?: {
+    createdAt: Date;
+    lastModified: Date;
+    usageCount: number;
+    avgCompletionTime?: number;
+  };
 }
 
 export interface ActivityLog {
@@ -156,6 +166,18 @@ export class HomeFlowDatabase extends Dexie {
       onboarding: 'userId, completedAt',
       rooms: 'id, userId, type, enabled',
       tasks: 'id, category, room, effortLevel, isMicroTask',
+      activityLogs: 'id, userId, taskId, startTime, completed',
+      userProgress: 'userId, lastActivityDate',
+      shoppingLists: 'userId, lastModified',
+      frequentItems: '[userId+name], userId, category, lastPurchased',
+      userPatterns: 'userId',
+    });
+
+    // Versión 3: Añadir índice para tareas personalizadas
+    this.version(3).stores({
+      onboarding: 'userId, completedAt',
+      rooms: 'id, userId, type, enabled',
+      tasks: 'id, category, room, effortLevel, isMicroTask, createdByUser, isCustom',
       activityLogs: 'id, userId, taskId, startTime, completed',
       userProgress: 'userId, lastActivityDate',
       shoppingLists: 'userId, lastModified',

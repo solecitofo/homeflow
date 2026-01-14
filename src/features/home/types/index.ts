@@ -1,13 +1,15 @@
 // Tipos para el nuevo flujo adaptativo basado en estado
 
-export type UserIntention = 
+export type UserIntention =
   | 'overwhelmed'      // 🤯 Estoy abrumado/a, no sé ni por dónde empezar
   | 'have_energy'      // ⚡ Tengo algo de energía, ¿qué puedo hacer?
   | 'need_planning'    // 📝 Necesito planificar/organizar
   | 'need_shopping'    // 🛒 Necesito hacer la compra
   | 'hard_to_start'    // 😓 Me cuesta ponerme en marcha
   | 'see_progress'     // ✅ Quiero ver mi progreso
-  | 'see_home';        // 🏠 Ver estado de mi hogar
+  | 'see_home'         // 🏠 Ver estado de mi hogar
+  | 'learn'            // 📚 Aprender estrategias
+  | 'my_tasks';        // ⭐ Mis tareas personalizadas
 
 export type Barrier = 
   | 'no_energy'        // 😴 No tengo energía

@@ -522,12 +522,13 @@ export const RouteHaveEnergy: React.FC = () => {
                 <Button variant="outline" onClick={() => setPhase('closure')} className="w-full">
                   No, suficiente por hoy
                 </Button>
-                        {/* PHASE: Closure - Cierre de sesión */}
-                        {phase === 'closure' && (
-                          <SessionClosure onHome={() => navigate('/')} />
-                        )}
               </div>
             </motion.div>
+          )}
+
+          {/* PHASE: Closure - Cierre de sesión */}
+          {phase === 'closure' && (
+            <SessionClosure onHome={() => navigate('/')} />
           )}
         </AnimatePresence>
       </div>

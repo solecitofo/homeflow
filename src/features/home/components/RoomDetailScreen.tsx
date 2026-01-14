@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Clock, Play, ListChecks } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Clock, Play, ListChecks, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
+import { db, type Task } from '../../../db/database';
+import { getCompletedTaskIdsToday } from '../../../db/operations/activityLogs';
+import { useUserId } from '../../../shared/hooks/useUserId';
 
 // Tipos
 interface QuickMission {
@@ -98,9 +101,42 @@ const roomsData: Record<string, RoomData> = {
 export const RoomDetailScreen: React.FC = () => {
   const navigate = useNavigate();
   const { roomId } = useParams<{ roomId: string }>();
+  const userId = useUserId();
   const [selectedMissions, setSelectedMissions] = useState<Set<string>>(new Set());
+  const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
+  const [completedToday, setCompletedToday] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
   const room = roomId ? roomsData[roomId] : null;
+
+  // Cargar tareas de la habitación y tareas completadas hoy
+  useEffect(() => {
+    if (!room) return;
+
+    const loadRoomTasks = async () => {
+      try {
+        setLoading(true);
+
+        // Cargar tareas de esta habitación desde DB
+        const tasks = await db.tasks
+          .where('room')
+          .equals(room.id)
+          .toArray();
+
+        // Cargar IDs de tareas completadas hoy
+        const completed = await getCompletedTaskIdsToday(userId);
+
+        setAvailableTasks(tasks);
+        setCompletedToday(completed);
+      } catch (error) {
+        console.error('Error loading room tasks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRoomTasks();
+  }, [room, userId]);
 
   if (!room) {
     return (
@@ -129,14 +165,48 @@ export const RoomDetailScreen: React.FC = () => {
     .filter(m => selectedMissions.has(m.id))
     .reduce((acc, m) => acc + m.durationMinutes, 0);
 
-  const handleDoOne = (missionId: string) => {
-    // TODO: Navegar a ejecución de tarea específica
-    navigate('/flow/overwhelmed');
+  const handleDoOne = async (taskId?: string) => {
+    // Si se pasa un taskId, usar esa tarea directamente
+    if (taskId) {
+      navigate('/task/execute', {
+        state: {
+          taskId,
+          fromRoom: room.id,
+          intensityPreselected: 'standard'
+        }
+      });
+      return;
+    }
+
+    // Si no, buscar una tarea pendiente (no completada hoy)
+    const pendingTask = availableTasks.find(t => !completedToday.has(t.id));
+
+    if (pendingTask) {
+      navigate('/task/execute', {
+        state: {
+          taskId: pendingTask.id,
+          fromRoom: room.id,
+          intensityPreselected: 'standard'
+        }
+      });
+    } else if (availableTasks.length > 0) {
+      // Si todas están completadas, usar la primera
+      navigate('/task/execute', {
+        state: {
+          taskId: availableTasks[0].id,
+          fromRoom: room.id,
+          intensityPreselected: 'standard'
+        }
+      });
+    }
   };
 
   const handleDoAll = () => {
-    // TODO: Iniciar secuencia de tareas
-    navigate('/flow/overwhelmed');
+    // TODO: Implementar secuencia de múltiples tareas
+    // Por ahora, iniciar con la primera tarea
+    if (room.missions.length > 0) {
+      handleDoOne(room.missions[0].id);
+    }
   };
 
   return (
@@ -173,54 +243,94 @@ export const RoomDetailScreen: React.FC = () => {
           transition={{ delay: 0.1 }}
           className="text-lg font-semibold text-gray-700 mb-4 mt-6"
         >
-          Misiones rápidas disponibles
+          Tareas disponibles ({availableTasks.length})
         </motion.h3>
 
-        {/* Missions List */}
-        <div className="space-y-3 mb-6">
-          {room.missions.map((mission, index) => (
-            <motion.button
-              key={mission.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 + index * 0.05 }}
-              whileHover={{ x: 5 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleDoOne(mission.id)}
-              className={`w-full bg-gradient-to-r ${mission.color} rounded-xl p-4 text-white shadow-md
-                         flex items-center justify-between transition-all`}
-            >
-              <div className="text-left">
-                <div className="font-semibold text-lg">{mission.title}</div>
-                <div className="flex items-center gap-1 text-white/90 text-sm">
-                  <Clock className="w-4 h-4" />
-                  {mission.durationMinutes} minutos
-                </div>
-              </div>
-              <ChevronRight className="w-6 h-6 text-white/80" />
-            </motion.button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">
+            Cargando tareas...
+          </div>
+        ) : availableTasks.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">No hay tareas disponibles para esta habitación</p>
+            <Button onClick={() => navigate('/rooms')}>Volver</Button>
+          </div>
+        ) : (
+          <>
+            {/* Tasks List */}
+            <div className="space-y-3 mb-6">
+              {availableTasks.map((task, index) => {
+                const isCompleted = completedToday.has(task.id);
+                const colors = [
+                  'from-green-400 to-green-600',
+                  'from-blue-400 to-blue-600',
+                  'from-orange-400 to-orange-600',
+                  'from-purple-400 to-purple-600',
+                  'from-pink-400 to-pink-600',
+                  'from-indigo-400 to-indigo-600',
+                ];
+                const color = colors[index % colors.length];
+
+                return (
+                  <motion.button
+                    key={task.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + index * 0.05 }}
+                    whileHover={{ x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDoOne(task.id)}
+                    className={`w-full bg-gradient-to-r ${isCompleted ? 'from-gray-300 to-gray-400' : color} rounded-xl p-4 text-white shadow-md
+                               flex items-center justify-between transition-all relative ${isCompleted ? 'opacity-70' : ''}`}
+                  >
+                    {isCompleted && (
+                      <div className="absolute top-2 right-2">
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                    <div className="text-left">
+                      <div className="font-semibold text-lg flex items-center gap-2">
+                        {task.title}
+                        {isCompleted && <span className="text-xs">(Completada hoy)</span>}
+                      </div>
+                      <div className="flex items-center gap-1 text-white/90 text-sm">
+                        <Clock className="w-4 h-4" />
+                        {task.estimatedMinutes} minutos
+                      </div>
+                    </div>
+                    <ChevronRight className="w-6 h-6 text-white/80" />
+                  </motion.button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         {/* Action Buttons */}
-        <div className="space-y-3">
-          <Button 
-            onClick={() => handleDoOne(room.missions[0].id)} 
-            className="w-full"
-          >
-            <Play className="w-5 h-5 mr-2" />
-            Hacer una
-          </Button>
-          
-          <Button 
-            variant="secondary" 
-            onClick={handleDoAll}
-            className="w-full"
-          >
-            <ListChecks className="w-5 h-5 mr-2" />
-            Hacer todas ({room.missions.reduce((a, m) => a + m.durationMinutes, 0)} min)
-          </Button>
-        </div>
+        {!loading && availableTasks.length > 0 && (
+          <div className="space-y-3">
+            <Button
+              onClick={() => handleDoOne()}
+              className="w-full"
+              disabled={availableTasks.length === 0}
+            >
+              <Play className="w-5 h-5 mr-2" />
+              {completedToday.size === availableTasks.length
+                ? 'Repetir una tarea'
+                : 'Hacer siguiente pendiente'}
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={handleDoAll}
+              className="w-full"
+              disabled={availableTasks.length === 0}
+            >
+              <ListChecks className="w-5 h-5 mr-2" />
+              Hacer todas ({availableTasks.reduce((a, t) => a + t.estimatedMinutes, 0)} min)
+            </Button>
+          </div>
+        )}
 
         {/* Motivational Note */}
         <motion.div

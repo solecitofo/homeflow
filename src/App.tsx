@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { seedTasksIfNeeded } from './db/seed/taskLibrary';
 
 // Onboarding
 import { EmotionalStateSelection } from './features/onboarding/components/EmotionalStateSelection';
@@ -26,6 +28,8 @@ import { RoomDetailScreen } from './features/home/components/RoomDetailScreen';
 
 // Tasks
 import { TaskExecutionScreen } from './features/tasks/components/TaskExecutionScreen';
+import { TaskExecutionFlow } from './features/tasks/components/TaskExecutionFlow';
+import { MyCustomTasks } from './features/tasks/components/MyCustomTasks';
 
 // Learn
 import { LearnHome } from './features/learn/components/LearnHome';
@@ -35,6 +39,13 @@ import { ArticleReader } from './features/learn/components/ArticleReader';
 import { ProtectedRoute } from './shared/components/ProtectedRoute';
 
 function App() {
+  // Seed tasks automáticamente al iniciar la app
+  useEffect(() => {
+    seedTasksIfNeeded().catch(error => {
+      console.error('Error during app initialization seed:', error);
+    });
+  }, []);
+
   return (
     <BrowserRouter basename="/">
       <Routes>
@@ -66,12 +77,14 @@ function App() {
         {/* Room Views - Pantalla 9 y 11 */}
         <Route path="/rooms" element={<ProtectedRoute><RoomOverviewScreen /></ProtectedRoute>} />
         <Route path="/rooms/:roomId" element={<ProtectedRoute><RoomDetailScreen /></ProtectedRoute>} />
-        
-        {/* Legacy Home - Still accessible */}
-        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+
+        {/* Legacy Home - Deprecated (use StateSelectionScreen at "/" instead) */}
+        {/* <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} /> */}
         
         {/* Tasks */}
+        <Route path="/task/execute" element={<ProtectedRoute><TaskExecutionFlow /></ProtectedRoute>} />
         <Route path="/tasks/:taskId" element={<ProtectedRoute><TaskExecutionScreen /></ProtectedRoute>} />
+        <Route path="/my-tasks" element={<ProtectedRoute><MyCustomTasks /></ProtectedRoute>} />
         
         {/* Learn */}
         <Route path="/learn" element={<ProtectedRoute><LearnHome /></ProtectedRoute>} />

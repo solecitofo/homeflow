@@ -98,6 +98,25 @@ export async function getTodayActivityCount(userId: string): Promise<number> {
 }
 
 /**
+ * Obtiene los IDs de tareas completadas hoy
+ */
+export async function getCompletedTaskIdsToday(userId: string): Promise<Set<string>> {
+  const today = startOfDay(new Date());
+
+  const logs = await db.activityLogs
+    .where('userId')
+    .equals(userId)
+    .and((log) => {
+      if (!log.completed) return false;
+      const logDate = startOfDay(new Date(log.startTime));
+      return isSameDay(logDate, today);
+    })
+    .toArray();
+
+  return new Set(logs.map(log => log.taskId));
+}
+
+/**
  * Obtiene los logs recientes del usuario
  */
 export async function getRecentLogs(
