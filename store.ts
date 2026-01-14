@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { EmotionalState, OnboardingData } from './src/db/database';
+import { EmotionalState } from './features/onboarding/types';
+import { OnboardingData } from './features/onboarding/types';
 
 interface AppState {
   // Usuario
@@ -10,6 +11,13 @@ interface AppState {
   emotionalState: EmotionalState | null;
   onboardingData: Partial<OnboardingData>;
   
+  // Home Screen
+  dailyEmotionalState: EmotionalState | null;
+  lastEmotionalCheckDate: Date | null;
+  
+  // Task Execution
+  currentTaskId: string | null;
+  
   // UI
   isLoading: boolean;
   
@@ -19,15 +27,20 @@ interface AppState {
   setEmotionalState: (state: EmotionalState) => void;
   setOnboardingData: (data: Partial<OnboardingData>) => void;
   resetOnboarding: () => void;
+  setDailyEmotionalState: (state: EmotionalState) => void;
+  setCurrentTaskId: (taskId: string | null) => void;
   setLoading: (loading: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   // Estado inicial
-  userId: 'default_user', // En producción, vendría de auth
+  userId: '',
   onboardingStep: 0,
   emotionalState: null,
   onboardingData: {},
+  dailyEmotionalState: null,
+  lastEmotionalCheckDate: null,
+  currentTaskId: null,
   isLoading: false,
   
   // Actions
@@ -49,6 +62,13 @@ export const useAppStore = create<AppState>((set) => ({
     emotionalState: null,
     onboardingData: {},
   }),
+  
+  setDailyEmotionalState: (state) => set({
+    dailyEmotionalState: state,
+    lastEmotionalCheckDate: new Date(),
+  }),
+  
+  setCurrentTaskId: (taskId) => set({ currentTaskId: taskId }),
   
   setLoading: (loading) => set({ isLoading: loading }),
 }));
