@@ -28,7 +28,7 @@ export const FirstGuidedTask: React.FC = () => {
   };
   
   const handleComplete = () => {
-    navigate('/onboarding/complete');
+    navigate('/onboarding/feedback');
   };
   
   const toggleStep = (index: number) => {

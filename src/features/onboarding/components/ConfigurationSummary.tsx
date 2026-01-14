@@ -126,50 +126,58 @@ export const ConfigurationSummary: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sage-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
           className="bg-white rounded-3xl shadow-xl p-8"
         >
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+          {/* Títulos */}
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">
             Confirmación
           </h2>
-          <p className="text-gray-600 mb-8 text-center">
+          <p className="text-gray-600 mb-8 text-center text-base">
             Así quedó configurado tu hogar
           </p>
           
+          {/* Preview Card con Gradient */}
           <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl p-6 mb-6">
-            <div className="text-2xl font-bold mb-4">
+            {/* Preview Title */}
+            <div className="text-xl font-bold mb-4">
               🏠 {onboardingData.homeName || 'Mi hogar'}
             </div>
             
+            {/* Preview Grid */}
             <div className="space-y-2">
               {spaces.map((space, index) => (
                 <div 
                   key={index}
-                  className="flex justify-between items-center p-3 bg-white/10 rounded-xl"
+                  className="flex justify-between items-center p-3 bg-white/10 rounded-lg"
                 >
+                  {/* Preview Item Label */}
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{space.icon}</span>
-                    <span className="font-medium">{space.label}</span>
+                    <span className="text-lg">{space.icon}</span>
+                    <span className="font-medium text-sm">{space.label}</span>
                   </div>
-                  <div className="text-xl font-bold">{space.value}</div>
+                  {/* Preview Item Value */}
+                  <div className="font-semibold text-base">{space.value}</div>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="bg-empathy-50 border-l-4 border-empathy-500 rounded-xl p-4 mb-8">
-            <p className="text-sm text-empathy-900">
+          {/* Info Box */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-4 mb-8">
+            <p className="text-sm text-blue-900 leading-relaxed">
               <strong>Puedes cambiar esta configuración cuando quieras</strong><br/>
               Encontrarás la opción en Ajustes → Configuración del hogar
             </p>
           </div>
           
+          {/* Buttons */}
           <div className="space-y-3">
             <button
               onClick={handleConfirm}
               className="w-full bg-gradient-to-r from-primary-500 to-primary-600 
-                       text-white py-4 rounded-xl font-semibold text-lg
+                       text-white py-3 px-6 rounded-xl font-semibold
                        hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]
                        transition-all duration-200"
             >
@@ -179,7 +187,7 @@ export const ConfigurationSummary: React.FC = () => {
             <button
               onClick={() => navigate('/onboarding/configure/step1')}
               className="w-full bg-white border-2 border-gray-300 text-gray-700 
-                       py-3 rounded-xl font-semibold
+                       py-3 px-6 rounded-xl font-semibold
                        hover:bg-gray-50 transition-all duration-200"
             >
               Editar configuración

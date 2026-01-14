@@ -1,0 +1,137 @@
+ESTRUCTURA PROPUESTA
+1. PANTALLA DE ENTRADA: "¿Cómo puedo ayudarte hoy?"
+En lugar de mostrar TODO (listas, tareas, recordatorios) → pregunta sobre el ESTADO actual
+Opciones tipo "tarjetas de estado":
+🤯 Estoy abrumado/a, no sé ni por dónde empezar
+⚡ Tengo algo de energía, ¿qué puedo hacer?
+📝 Necesito planificar/organizar
+🛒 Necesito hacer la compra
+😓 Me cuesta ponerme en marcha
+✅ Quiero ver mi progreso
+
+Fundamento TCC: Reconocer el estado emocional antes de pedir acción reduce resistencia y permite personalizar la intervención.
+
+2. RUTAS ADAPTATIVAS SEGÚN ESTADO
+RUTA A: "Estoy abrumado/a"
+Objetivo: Reducir carga cognitiva a CERO y ofrecer acción inmediata mínima
+Flujo:
+
+Validación emocional: "Entiendo, a veces el desorden nos puede. Vamos a empezar MUY pequeño"
+Micro-tarea generada automáticamente (sin que el usuario elija):
+
+🎯 Tu micro-misión (2 minutos):
+   
+   "Recoge 3 objetos que estén fuera de su sitio 
+   y colócalos donde van"
+   
+   [Empezar] [Necesito algo más pequeño]
+
+Si dice "más pequeño" → reduce aún más:
+
+"Recoge 1 objeto y ponlo en su sitio"
+
+Timer visual de 2 minutos que corre mientras hacen la tarea
+Refuerzo inmediato:
+
+✨ ¡Lo hiciste! 
+   
+   ¿Cómo te sientes ahora?
+   [Mejor] [Igual] [Peor]
+   
+   ¿Quieres hacer otra micro-misión?
+   [Sí, dame otra] [No, suficiente por hoy]
+
+RUTA B: "Tengo energía, ¿qué hago?"
+Objetivo: Aprovechar el impulso direccionándolo estratégicamente
+Flujo:
+
+Evaluar energía disponible:
+
+¿Cuánto tiempo tienes?
+   [5-10 min] [15-20 min] [30+ min] [No estoy seguro/a]
+
+Sugerir tarea óptima basada en:
+
+Tiempo disponible
+Historial de lo que genera más satisfacción (datos previos)
+Urgencia/impacto
+
+💡 Sugerencia personalizada:
+   
+   "Limpieza express de cocina (15 min)"
+   
+   Impacto en tu bienestar: ⭐⭐⭐⭐⭐
+   (Basado en registros previos, esto suele 
+   hacerte sentir muy bien)
+   
+   Incluye:
+   • Recoger encimera
+   • Fregar platos visibles
+   • Pasar bayeta
+   
+   [Hacerlo] [Dame otra opción]
+
+Durante la tarea:
+
+Checklist interactiva con celebración por paso
+Timer opcional (no impuesto)
+Música/ambiente si ha configurado playlist de activación
+
+
+Post-tarea:
+✨ Completado en 12 minutos
+   
+   ¿Cómo te sientes?
+   [Registrar estado de ánimo]
+   
+   🏆 Racha: 3 días seguidos haciendo algo
+
+RUTA C: "Me cuesta ponerme en marcha"
+Objetivo: Abordar la barrera de inicio (problema ejecutivo característico TDAH)
+Flujo:
+
+Identificar la barrera específica:
+
+¿Qué te está frenando?
+   
+   😴 No tengo energía
+   🤔 No sé qué hacer primero
+   ⏰ No es el momento "perfecto"
+   🎯 Me parece demasiado
+   😰 Me da ansiedad empezar
+
+Intervención según barrera:
+Si es "no sé qué hacer primero" →
+Voy a decidir por ti para ahorrar energía:
+   
+   🎲 Tarea aleatoria de bajo esfuerzo:
+   "Vaciar una papelera de la casa"
+   
+   (A veces lo mejor es simplemente EMPEZAR 
+   con cualquier cosa)
+   
+   [Vale, voy] [Dame otra]
+
+Si es "no tengo energía" →
+
+Entiendo. ¿Qué tal si hacemos algo 
+   que NO requiera moverte mucho?
+   
+   📝 Hacer lista de compra desde el sofá
+   🗂️ Revisar qué hay en la nevera (mental)
+   📋 Planificar menú de mañana
+   
+   (Avanzar ≠ esfuerzo físico)
+Si es "momento perfecto" → Challenge cognitivo:
+
+Aquí hay un secreto: 
+   
+   El momento perfecto no existe 🙃
+   
+   Pero... ¿qué pasaría si haces SOLO la 
+   primera parte ahora?
+   
+   No tienes que terminar, solo empezar.
+   
+   [Ok, solo empiezo]
+
